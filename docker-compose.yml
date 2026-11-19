@@ -1,0 +1,9 @@
+services:
+  zuzu-beauty-studio:
+    build: .
+    container_name: zuzu-beauty-studio
+    ports:
+      - "8080:8080"
+    volumes:
+      - /mnt/tank/zuzu-data:/data
+    restart: unless-stopped

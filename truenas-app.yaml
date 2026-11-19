@@ -1,0 +1,11 @@
+services:
+  zuzu-beauty-studio:
+    # Replace YOUR_GITHUB_USERNAME with your lowercase GitHub username
+    image: ghcr.io/YOUR_GITHUB_USERNAME/zuzu-beauty-studio:latest
+    container_name: zuzu-beauty-studio
+    ports:
+      - "8080:8080"
+    volumes:
+      # Replace tank/zuzu-data with your TrueNAS ZFS dataset path
+      - /mnt/tank/zuzu-data:/data
+    restart: unless-stopped
