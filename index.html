@@ -1,182 +1,218 @@
-<!-- Add this inside your PACKAGE, EXTRAS & DISCOUNT card, right above the divider line -->
-<div id="extra-package-slot" style="margin-top: 16px; padding-top: 14px; border-top: 1px dashed #e5e7eb;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-    <span style="font-size: 0.85rem; font-weight: 600; color: #374151;">
-      Additional Package / Serial #2 — Selected Packages (Tap to toggle)
-    </span>
-    <button type="button" id="clearPkg2Btn" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; border: 1px solid #d1d5db; background: #fff; cursor: pointer;">
-      Clear Slot #2
-    </button>
-  </div>
+<!-- Place this right below your existing pink Package Items (Multi-Select) card and above "Package Details / Inclusions" -->
+<div id="additionalDayPackagesContainer" style="margin-top: 14px;"></div>
 
-  <!-- Second toggle chips bar -->
-  <div id="pkg2Chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-    <button type="button" class="pkg2-chip" data-pkg="Bride" data-price="10000">+ Bride</button>
-    <button type="button" class="pkg2-chip" data-pkg="HD" data-price="8000">+ HD</button>
-    <button type="button" class="pkg2-chip" data-pkg="Basic" data-price="5000">+ Basic</button>
-    <button type="button" class="pkg2-chip" data-pkg="Premium" data-price="15000">+ Premium</button>
-    <button type="button" class="pkg2-chip" data-pkg="Luxury" data-price="22000">+ Luxury</button>
-    <button type="button" class="pkg2-chip" data-pkg="Bridesmaid" data-price="3500">+ Bridesmaid</button>
-    <button type="button" class="pkg2-chip" data-pkg="Groom" data-price="4000">+ Groom</button>
-  </div>
-
-  <!-- Second package label, serial/tag, and amount row -->
-  <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 10px; align-items: end;">
-    <div>
-      <label style="display: block; font-size: 0.78rem; color: #6b7280; margin-bottom: 4px;">
-        Second Package Label
-      </label>
-      <input
-        type="text"
-        id="pkg2Label"
-        placeholder="e.g. HD + Bride (Serial #2)"
-        style="width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 8px;"
-      />
-    </div>
-
-    <div>
-      <label style="display: block; font-size: 0.78rem; color: #6b7280; margin-bottom: 4px;">
-        Amount (₹)
-      </label>
-      <input
-        type="number"
-        id="pkg2Amount"
-        value="0"
-        min="0"
-        style="width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 8px;"
-      />
-    </div>
-
-    <div>
-      <label style="display: block; font-size: 0.78rem; color: #6b7280; margin-bottom: 4px;">
-        Notes / Serial
-      </label>
-      <input
-        type="text"
-        id="pkg2Notes"
-        placeholder="e.g. Reception / Slot 2"
-        style="width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 8px;"
-      />
-    </div>
-
-    <button
-      type="button"
-      id="applyPkg2Btn"
-      style="padding: 9px 16px; border: none; border-radius: 8px; background: #e11d48; color: #fff; font-weight: 600; cursor: pointer;"
-    >
-      Update Total
-    </button>
-  </div>
+<div style="margin: 12px 0 18px 0;">
+  <button
+    type="button"
+    id="addDayPackageBtn"
+    style="
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px dashed #f43f5e;
+      background: #fff1f2;
+      color: #e11d48;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    "
+  >
+    + Add Package for Day 2 / Another Event
+  </button>
 </div>
 
 <style>
-  .pkg2-chip {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: 1px solid #d1d5db;
-    background: #fff;
+  .day-pkg-card {
+    background: #fff5f7;
+    border: 1px solid #fecdd3;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .day-pkg-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .day-pkg-title {
+    font-weight: 700;
+    font-size: 0.95rem;
     color: #111827;
-    font-size: 0.85rem;
+  }
+  .day-pkg-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .day-pkg-chip {
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #111827;
+    font-weight: 500;
+    font-size: 0.88rem;
     cursor: pointer;
     transition: all 0.15s ease;
   }
-  .pkg2-chip.active {
-    background: #ffe4e6;
-    border-color: #e11d48;
-    color: #be123c;
+  .day-pkg-chip.selected {
+    background: #f43f5e;
+    border-color: #f43f5e;
+    color: #ffffff;
     font-weight: 600;
+  }
+  .day-pkg-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .day-pkg-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 0.95rem;
+    margin-top: 4px;
   }
 </style>
 
 <script>
   (function () {
-    const chips = document.querySelectorAll('.pkg2-chip');
-    const labelInput = document.getElementById('pkg2Label');
-    const amountInput = document.getElementById('pkg2Amount');
-    const clearBtn = document.getElementById('clearPkg2Btn');
-    const applyBtn = document.getElementById('applyPkg2Btn');
+    const container = document.getElementById('additionalDayPackagesContainer');
+    const addBtn = document.getElementById('addDayPackageBtn');
 
-    // Adjust these selectors if your existing inputs/displays use different IDs
-    const basePriceInput = document.querySelector('input[value="20000"]') || document.getElementById('basePrice');
-    const discountInput = document.querySelector('input[value="2000"]') || document.getElementById('discount');
+    // Match your studio's package list & default prices
+    const PACKAGE_OPTIONS = [
+      { name: 'Basic', price: 8000 },
+      { name: 'HD', price: 15000 },
+      { name: 'Premium', price: 20000 },
+      { name: 'Luxury', price: 28000 },
+      { name: 'Bridesmaid', price: 3500 },
+      { name: 'Groom', price: 4000 }
+    ];
 
-    let selectedPkgs2 = new Map();
+    let dayCounter = 1; // Day 1 is your existing top card
 
-    function syncPkg2Fields() {
-      const names = Array.from(selectedPkgs2.keys());
-      const totalAmt = Array.from(selectedPkgs2.values()).reduce((sum, v) => sum + v, 0);
+    function createDayPackageCard(dayNumber) {
+      const card = document.createElement('div');
+      card.className = 'day-pkg-card';
+      card.dataset.day = dayNumber;
 
-      if (names.length > 0) {
-        labelInput.value = names.join(' + ');
-        amountInput.value = totalAmt;
-      }
-      recalculateBilling();
-    }
+      const selectedSet = new Set();
 
-    function recalculateBilling() {
-      const pkg1Base = Number(basePriceInput?.value || 0);
-      const pkg2Base = Number(amountInput?.value || 0);
-      const discount = Number(discountInput?.value || 0);
+      card.innerHTML = `
+        <div class="day-pkg-header">
+          <span class="day-pkg-title">Day ${dayNumber} — Package Items (Multi-Select)</span>
+          <button type="button" class="remove-day-pkg" style="background:none;border:none;color:#e11d48;font-size:0.82rem;font-weight:600;cursor:pointer;">
+            Remove
+          </button>
+        </div>
 
-      // If you already track extra costs in state/DOM, include them here:
-      const extraCost = Number(window.currentExtraCostTotal || 0);
+        <div class="day-pkg-chips">
+          ${PACKAGE_OPTIONS.map(
+            (p) =>
+              `<button type="button" class="day-pkg-chip" data-name="${p.name}" data-price="${p.price}">+ ${p.name}</button>`
+          ).join('')}
+        </div>
 
-      const basePlusExtra = pkg1Base + pkg2Base + extraCost;
-      const netTotal = Math.max(0, basePlusExtra - discount);
+        <div class="day-pkg-grid">
+          <div>
+            <label style="font-size:0.82rem;font-weight:600;color:#374151;">Day ${dayNumber} Package Price (₹)</label>
+            <input type="number" class="day-pkg-input day-price-input" value="0" min="0" />
+          </div>
+          <div>
+            <label style="font-size:0.82rem;font-weight:600;color:#374151;">Day ${dayNumber} Discount (₹) (Optional)</label>
+            <input type="number" class="day-pkg-input day-discount-input" value="0" min="0" />
+          </div>
+        </div>
+      `;
 
-      // Update visible totals if matched by text or ID
-      document.querySelectorAll('*').forEach((el) => {
-        if (el.children.length === 0 && el.textContent.trim().startsWith('₹')) {
-          const parentText = el.parentElement?.textContent || '';
-          if (parentText.includes('Base + Extra')) {
-            el.textContent = '₹' + basePlusExtra.toLocaleString('en-IN');
-          } else if (parentText.includes('Net Total')) {
-            el.textContent = '₹' + netTotal.toLocaleString('en-IN');
+      const priceInput = card.querySelector('.day-price-input');
+      const discountInput = card.querySelector('.day-discount-input');
+      const chips = card.querySelectorAll('.day-pkg-chip');
+
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const name = chip.dataset.name;
+          const price = Number(chip.dataset.price || 0);
+
+          if (selectedSet.has(name)) {
+            selectedSet.delete(name);
+            chip.classList.remove('selected');
+            chip.textContent = `+ ${name}`;
+            priceInput.value = Math.max(0, Number(priceInput.value || 0) - price);
+          } else {
+            selectedSet.add(name);
+            chip.classList.add('selected');
+            chip.textContent = `✓ ${name}`;
+            priceInput.value = Number(priceInput.value || 0) + price;
           }
-        }
+          syncAllDaysSummary();
+        });
       });
 
-      // Expose combined package data so your Save / Invoice / WhatsApp handler can read it
-      window.billingPackagesState = {
-        package1Label: document.querySelector('input[value="Custom Package"]')?.value || 'Custom Package',
-        package1Amount: pkg1Base,
-        package2Label: labelInput.value.trim(),
-        package2Amount: pkg2Base,
-        package2Notes: document.getElementById('pkg2Notes').value.trim(),
-        discount,
-        basePlusExtra,
-        netTotal
-      };
+      priceInput.addEventListener('input', syncAllDaysSummary);
+      discountInput.addEventListener('input', syncAllDaysSummary);
+
+      card.querySelector('.remove-day-pkg').addEventListener('click', () => {
+        card.remove();
+        renumberDayCards();
+        syncAllDaysSummary();
+      });
+
+      return card;
     }
 
-    chips.forEach((chip) => {
-      chip.addEventListener('click', () => {
-        const pkgName = chip.dataset.pkg;
-        const pkgPrice = Number(chip.dataset.price || 0);
-
-        if (selectedPkgs2.has(pkgName)) {
-          selectedPkgs2.delete(pkgName);
-          chip.classList.remove('active');
-        } else {
-          selectedPkgs2.set(pkgName, pkgPrice);
-          chip.classList.add('active');
-        }
-        syncPkg2Fields();
+    function renumberDayCards() {
+      const cards = container.querySelectorAll('.day-pkg-card');
+      dayCounter = 1;
+      cards.forEach((card) => {
+        dayCounter++;
+        card.dataset.day = dayCounter;
+        card.querySelector('.day-pkg-title').textContent = `Day ${dayCounter} — Package Items (Multi-Select)`;
+        const labels = card.querySelectorAll('label');
+        labels[0].textContent = `Day ${dayCounter} Package Price (₹)`;
+        labels[1].textContent = `Day ${dayCounter} Discount (₹) (Optional)`;
       });
+      addBtn.textContent = `+ Add Package for Day ${dayCounter + 1} / Another Event`;
+    }
+
+    function syncAllDaysSummary() {
+      const extraDays = [];
+      container.querySelectorAll('.day-pkg-card').forEach((card) => {
+        const selected = Array.from(card.querySelectorAll('.day-pkg-chip.selected')).map((c) => c.dataset.name);
+        const price = Number(card.querySelector('.day-price-input').value || 0);
+        const discount = Number(card.querySelector('.day-discount-input').value || 0);
+        extraDays.push({
+          day: Number(card.dataset.day),
+          packages: selected,
+          price,
+          discount
+        });
+      });
+
+      // Read this in your "+ Save Booking" handler to combine Day 1 + Day 2+ totals
+      window.extraDayPackages = extraDays;
+    }
+
+    addBtn.addEventListener('click', () => {
+      dayCounter++;
+      const card = createDayPackageCard(dayCounter);
+      container.appendChild(card);
+      addBtn.textContent = `+ Add Package for Day ${dayCounter + 1} / Another Event`;
+      syncAllDaysSummary();
     });
 
-    clearBtn.addEventListener('click', () => {
-      selectedPkgs2.clear();
-      chips.forEach((c) => c.classList.remove('active'));
-      labelInput.value = '';
-      amountInput.value = '0';
-      document.getElementById('pkg2Notes').value = '';
-      recalculateBilling();
+    // Optional: automatically add Day 2 package card when user clicks "+ Add Day" at the top
+    document.querySelectorAll('button').forEach((btn) => {
+      if (btn.textContent.trim().includes('+ Add Day')) {
+        btn.addEventListener('click', () => {
+          addBtn.click();
+        });
+      }
     });
-
-    amountInput.addEventListener('input', recalculateBilling);
-    applyBtn.addEventListener('click', recalculateBilling);
-    basePriceInput?.addEventListener('input', recalculateBilling);
-    discountInput?.addEventListener('input', recalculateBilling);
   })();
 </script>
