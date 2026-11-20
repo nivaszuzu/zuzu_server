@@ -1,0 +1,2705 @@
+<!DOCTYPE html>
+<html lang="en" class="overflow-x-hidden">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Zuzu Studio" />
+  <meta name="theme-color" content="#f43f5e" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Zuzu Beauty Studio — Bookings, Billing &amp; Calendar</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+    button, a, input, select, textarea {
+      touch-action: manipulation;
+    }
+    button, [role="button"], label.cursor-pointer, input, select, textarea {
+      min-height: 46px;
+    }
+    button:active, a:active {
+      transform: scale(0.98);
+    }
+    /* Prevent iOS Safari auto-zoom by keeping all form controls >= 16px */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #invoice-print-area, #invoice-print-area * {
+        visibility: visible;
+      }
+      #invoice-print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 24px;
+        background: white;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-rose-50/50 text-stone-800 text-base antialiased pb-20">
+  <!-- Login / App Lock Screen -->
+  <div id="login-screen" class="hidden fixed inset-0 z-50 bg-rose-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-xl border border-rose-100 space-y-5 text-center">
+      <img
+        id="login-studio-logo"
+        src="icon-192.png"
+        alt="Zuzu Beauty Studio Logo"
+        class="w-20 h-20 rounded-2xl object-contain bg-white border border-rose-200 p-1 shadow-sm mx-auto"
+      />
+      <div>
+        <h2 class="text-xl font-bold text-stone-900">Zuzu Beauty Studio</h2>
+        <p id="login-subtitle" class="text-sm text-stone-500 mt-1">Sign in to access bookings &amp; billing</p>
+      </div>
+      <form id="login-form" class="space-y-3 text-left">
+        <div>
+          <label for="login-user" class="block text-sm font-medium text-stone-600 mb-1">Username</label>
+          <input id="login-user" type="text" autocomplete="username" placeholder="e.g. zuzu" class="w-full rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+        </div>
+        <div>
+          <label for="login-pass" class="block text-sm font-medium text-stone-600 mb-1">Password / PIN</label>
+          <input id="login-pass" type="password" autocomplete="current-password" placeholder="Enter password" class="w-full rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+        </div>
+        <p id="login-error" class="hidden text-sm text-red-600 font-medium text-center"></p>
+        <button type="submit" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold text-base py-3.5 rounded-xl transition-colors">
+          🔓 Unlock Studio
+        </button>
+      </form>
+    </div>
+  </div>
+  <!-- Top Bar -->
+  <header class="bg-white border-b border-rose-100 sticky top-0 z-20">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <img
+          id="header-studio-logo"
+          src="icon-192.png"
+          alt="Zuzu Beauty Studio Logo"
+          class="w-14 h-14 rounded-2xl object-contain bg-white border border-rose-200 p-0.5 shadow-sm shrink-0"
+        />
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 id="header-studio-name" class="text-lg sm:text-xl font-bold text-stone-900 leading-tight break-words">Zuzu Beauty Studio</h1>
+            <span class="text-xs font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full shrink-0">★ 4.9</span>
+          </div>
+          
+        </div>
+      </div>
+      <div class="grid grid-cols-4 sm:flex items-center gap-2 shrink-0">
+        <button id="home-sync-2way-btn" type="button" class="text-sm font-semibold px-3.5 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600 shadow-sm">🔄 Sync 2-Way</button>
+          <button id="lock-app-btn" type="button" class="text-sm font-semibold px-3 py-2.5 rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-100 text-center">🔒 Lock</button>
+        <button id="edit-studio-btn" type="button" class="text-sm font-semibold px-3 py-2.5 rounded-xl border border-rose-200 text-rose-700 hover:bg-rose-50 text-center">
+          Studio / Logo
+        </button>
+        <button id="export-btn" type="button" class="text-sm font-semibold px-3 py-2.5 rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 text-center">
+          Export
+        </button>
+        <label class="text-sm font-semibold px-3 py-2.5 rounded-xl border border-stone-200 text-stone-700 hover:bg-stone-50 cursor-pointer text-center">
+          Import
+          <input id="import-input" type="file" accept="application/json" class="hidden" />
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-3.5 sm:px-6 pt-5 space-y-5">
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-5 left-4 right-4 sm:left-auto sm:right-5 z-50 bg-stone-900 text-white text-sm sm:text-base px-4 py-3 rounded-xl shadow-lg sm:max-w-sm text-center sm:text-left"></div>
+
+    <!-- Summary KPIs -->
+    <section class="grid grid-cols-3 gap-2.5 sm:gap-3">
+      <div class="bg-white rounded-xl border border-rose-100 p-3.5 sm:p-4 shadow-sm">
+        <p class="text-xs sm:text-sm font-medium text-stone-500">Bookings</p>
+        <p id="kpi-orders" class="text-xl sm:text-2xl font-bold text-rose-600 mt-1">0</p>
+      </div>
+      <div class="bg-white rounded-xl border border-emerald-200 p-3.5 sm:p-4 shadow-sm">
+        <p class="text-xs sm:text-sm font-medium text-emerald-700">Collected</p>
+        <p id="kpi-collected" class="text-xl sm:text-2xl font-bold text-emerald-700 mt-1">₹0</p>
+      </div>
+      <div class="bg-white rounded-xl border border-amber-200 p-3.5 sm:p-4 shadow-sm">
+        <p class="text-xs sm:text-sm font-medium text-amber-700">Balance Due</p>
+        <p id="kpi-balance" class="text-xl sm:text-2xl font-bold text-amber-600 mt-1">₹0</p>
+      </div>
+    </section>
+
+    <!-- Dedicated Navigation Tabs -->
+    <nav class="grid grid-cols-2 sm:grid-cols-3 lg:inline-flex gap-2 bg-white p-2 rounded-2xl border border-rose-100 w-full lg:w-auto">
+      <button id="tab-calendar" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors bg-rose-500 text-white text-center">
+        🗓️ Calendar
+      </button>
+      <button id="tab-new-order" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center">
+        ➕ New Booking
+      </button>
+      <button id="tab-orders" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center">
+        📋 Bookings
+      </button>
+      <button id="tab-billing" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center">
+        💳 Billing
+      </button>
+      <button id="tab-statements" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center">
+        📊 Statements
+      </button>
+      <button id="tab-schedule" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center">
+        🔄 Radicale Sync
+      </button>
+      <button id="tab-staff" type="button" class="px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center">
+        👩‍💼 Staff &amp; Payroll
+      </button>
+    </nav>
+
+    <!-- TAB 1: CALENDAR VIEW -->
+    <section id="view-calendar" class="space-y-5">
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 id="cal-month-title" class="text-xl font-bold text-stone-900"></h2>
+            <p class="text-sm text-stone-500">Clean availability view — tap any date to book or view.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="cal-prev-btn" type="button" class="text-sm font-semibold px-3.5 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50">← Prev</button>
+            <button id="cal-today-btn" type="button" class="text-sm font-semibold px-3.5 py-2.5 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100">Today</button>
+            <button id="cal-next-btn" type="button" class="text-sm font-semibold px-3.5 py-2.5 rounded-xl border border-stone-200 hover:bg-stone-50">Next →</button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-semibold">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200">☑️ Booked</span>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">⬜ Available</span>
+        </div>
+        <div class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center text-xs font-semibold text-stone-400 uppercase">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div id="calendar-grid" class="grid grid-cols-7 gap-1 sm:gap-2"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-3">
+        <h3 class="text-lg font-bold text-stone-900">Upcoming Events</h3>
+        <div id="cal-upcoming-list" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: NEW BOOKING -->
+    <section id="view-new-order" class="hidden max-w-2xl mx-auto">
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
+        <h2 class="text-xl font-bold text-stone-900 mb-4">Create New Booking</h2>
+        <form id="new-order-form" class="space-y-4">
+          <div class="flex items-center gap-4 p-3.5 rounded-xl bg-rose-50/50 border border-rose-100">
+            <div id="new-order-photo-preview" class="w-20 h-20 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center text-3xl overflow-hidden shrink-0">
+              👩🏻
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-semibold text-stone-800">Client Photo (Optional)</p>
+              <p class="text-xs text-stone-500 mb-2">Shown large at the top of the booking.</p>
+              <label class="inline-block text-sm font-semibold px-3.5 py-2 rounded-xl bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 cursor-pointer">
+                Choose Photo
+                <input id="new-order-photo-input" type="file" accept="image/*" class="hidden" />
+              </label>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label for="order-name" class="block text-sm font-medium text-stone-700 mb-1">Client / Booking Name</label>
+              <input id="order-name" type="text" placeholder="e.g. Bridal - Priya (#105)" class="w-full rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+            </div>
+            <div>
+              <label for="order-phone" class="block text-sm font-medium text-stone-700 mb-1">Phone Number</label>
+              <div class="flex gap-2">
+                <input id="order-phone" type="tel" placeholder="e.g. +91 98765 43210" class="flex-1 min-w-0 rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+                <button id="pick-contact-btn" type="button" class="shrink-0 px-3.5 py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-sm hover:bg-rose-100">📇 Contacts</button>
+                <input id="vcf-contact-input" type="file" accept=".vcf,text/vcard" class="hidden" />
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-stone-700">Event Date(s), Time &amp; Map Location</span>
+              <button id="add-event-day-btn" type="button" class="text-sm font-semibold px-3 py-1.5 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200">
+                + Add Day
+              </button>
+            </div>
+            <div id="event-days-container" class="space-y-2.5"></div>
+            <p id="date-conflict-hint" class="hidden text-sm text-red-600 font-medium"></p>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="order-package" class="block text-sm font-medium text-stone-700 mb-1">Package</label>
+              <select id="order-package" class="w-full rounded-xl border border-stone-200 px-3 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-rose-400">
+                <option value="Air Brush Bridal Package">Air Brush Bridal</option>
+                <option value="HD Bridal Package">HD Bridal</option>
+                <option value="Engagement / Reception Look">Engagement / Reception</option>
+                <option value="Basic Party Makeup">Basic Party Makeup</option>
+                <option value="Custom Package">Custom Package</option>
+              </select>
+            </div>
+            <div>
+              <label for="order-price" class="block text-sm font-medium text-stone-700 mb-1">Package Price (₹)</label>
+              <input id="order-price" type="number" min="0" step="1" placeholder="15000" class="w-full rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400" required />
+            </div>
+          </div>
+
+          <div id="additional-packages-section" class="space-y-2.5 p-3.5 rounded-2xl border border-rose-200 bg-rose-50/50">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-sm font-semibold text-stone-800">Additional Day / Extra Packages (Multi-Select)</span>
+              <button id="add-extra-package-btn" type="button" class="text-sm font-semibold px-3 py-1.5 rounded-xl bg-white text-rose-700 hover:bg-rose-100 border border-rose-200">
+                + Add Package Item
+              </button>
+            </div>
+            <div id="extra-packages-container" class="space-y-2.5"></div>
+          </div>
+
+          <div>
+            <label for="order-package-notes" class="block text-sm font-medium text-stone-700 mb-1">Package Details / Inclusions</label>
+            <input id="order-package-notes" type="text" placeholder="e.g. Hair styling, saree draping, lashes &amp; trial" class="w-full rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+          </div>
+
+          <div>
+            <label for="order-notes" class="block text-sm font-medium text-stone-700 mb-1">Random Notes / Reminders</label>
+            <textarea id="order-notes" rows="2" placeholder="Type anything here: skin tone, saree color, jewelry notes..." class="w-full rounded-xl border border-stone-200 px-3.5 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
+          </div>
+
+          <label class="flex items-center gap-3 text-sm text-stone-700 cursor-pointer select-none py-1">
+            <input id="order-block-date" type="checkbox" class="w-5 h-5 accent-rose-500 rounded shrink-0" checked />
+            <span>Block all event dates &amp; sync 2-way with Radicale</span>
+          </label>
+          <button type="submit" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold text-base py-3.5 rounded-xl transition-colors">
+            + Save Booking
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 3: BOOKINGS (Big Client Photo, Call, Map, Personal Details & Notes) -->
+    <section id="view-orders" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="lg:col-span-4 bg-white rounded-2xl border border-rose-100 p-4 sm:p-5 shadow-sm h-fit">
+        <h2 class="text-lg font-bold text-stone-900 mb-3">All Bookings</h2>
+        <div id="orders-list" class="space-y-2.5"></div>
+        <p id="orders-empty" class="hidden text-sm text-stone-400 text-center py-4">
+          No bookings yet. Use <strong>Calendar</strong> or <strong>New Booking</strong>!
+        </p>
+      </div>
+
+      <div class="lg:col-span-8">
+        <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
+          <div id="no-order-selected" class="hidden text-center py-12 text-stone-400 text-base">
+            Select a booking on the left or create one in New Booking.
+          </div>
+
+          <div id="active-order-content" class="space-y-5">
+            <!-- Big Client Photo + Header -->
+            <div class="flex flex-col sm:flex-row sm:items-start gap-4 border-b border-stone-100 pb-4">
+              <div class="flex flex-col items-center gap-2 shrink-0">
+                <div id="active-order-photo-box" class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl bg-rose-50 border-2 border-rose-200 flex items-center justify-center text-5xl overflow-hidden shadow-sm">
+                  👩🏻
+                </div>
+                <label class="text-xs font-semibold text-rose-700 hover:underline cursor-pointer">
+                  Change Photo
+                  <input id="active-order-photo-input" type="file" accept="image/*" class="hidden" />
+                </label>
+              </div>
+
+              <div class="flex-1 min-w-0 space-y-3">
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h2 id="active-order-title" class="text-xl font-bold text-stone-900 break-words"></h2>
+                    <span id="active-order-blocked-badge" class="hidden text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700">Date Blocked</span>
+                  </div>
+                  <div id="active-order-phone-wrap" class="mt-2"></div>
+                  <p id="active-order-meta" class="text-sm text-stone-500 mt-1.5 break-words"></p>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button id="goto-billing-btn" type="button" class="text-sm font-semibold px-3.5 py-2.5 rounded-xl bg-stone-900 text-white hover:bg-stone-800">
+                    💳 Billing &amp; Invoice
+                  </button>
+                  <button id="block-radicale-btn" type="button" class="text-sm font-medium px-3.5 py-2.5 rounded-xl border border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+                    Block / Unblock
+                  </button>
+                  <button id="download-ics-btn" type="button" class="text-sm font-medium px-3.5 py-2.5 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50">
+                    .ics
+                  </button>
+                  <button id="delete-order-btn" type="button" class="text-sm font-medium px-3.5 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Event Days, Times & Quick Open Google Map -->
+            <div class="bg-indigo-50/50 rounded-xl p-4 border border-indigo-100 space-y-2.5">
+              <p class="text-sm font-bold uppercase tracking-wide text-indigo-800">Event Schedule &amp; Google Maps</p>
+              <div id="active-order-events" class="space-y-2.5"></div>
+            </div>
+
+            <!-- Client Personal Details (Customizable Form) -->
+            <div class="bg-rose-50/40 rounded-xl p-4 border border-rose-100 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p class="text-sm font-bold uppercase tracking-wide text-rose-800">Client Personal Details</p>
+                  <p class="text-xs text-stone-500">Skin, hair, allergies &amp; trial info</p>
+                </div>
+                <button id="toggle-field-editor-btn" type="button" class="text-sm font-semibold px-3 py-2 rounded-xl bg-white border border-rose-200 text-rose-700 hover:bg-rose-50">
+                  ⚙️ Add / Remove Fields
+                </button>
+              </div>
+
+              <!-- Dynamic Field Customizer -->
+              <div id="field-editor-panel" class="hidden bg-white rounded-xl p-3.5 border border-rose-200 space-y-3">
+                <p class="text-sm font-bold text-stone-800">Customize Personal Details Fields</p>
+                <form id="add-custom-field-form" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                  <input id="cf-label" type="text" placeholder="Question label (e.g. Saree Draping)" class="sm:col-span-5 rounded-xl border border-stone-200 px-3 py-2" required />
+                  <select id="cf-type" class="sm:col-span-3 rounded-xl border border-stone-200 px-2.5 py-2 bg-white">
+                    <option value="text">Text Box</option>
+                    <option value="yesno">Yes / No</option>
+                    <option value="select">Choices (comma)</option>
+                  </select>
+                  <input id="cf-options" type="text" placeholder="Choices (A, B, C)" class="sm:col-span-2 rounded-xl border border-stone-200 px-3 py-2" />
+                  <button type="submit" class="sm:col-span-2 bg-rose-500 text-white text-sm font-semibold px-3 py-2 rounded-xl hover:bg-rose-600">+ Add</button>
+                </form>
+                <div id="custom-fields-manager" class="flex flex-wrap gap-2"></div>
+              </div>
+
+              <div id="personal-details-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </div>
+
+            <!-- Editable Notes Box -->
+            <div class="bg-amber-50/50 rounded-xl p-4 border border-amber-100 space-y-2">
+              <div class="flex items-center justify-between">
+                <label for="active-order-notes" class="text-sm font-bold uppercase tracking-wide text-amber-800">Random Notes</label>
+                <span class="text-xs text-stone-400">Auto-saves</span>
+              </div>
+              <textarea id="active-order-notes" rows="3" placeholder="Add notes, shade preferences, or reminders..." class="w-full rounded-xl border border-amber-200 bg-white px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: BILLING, PACKAGES, INVOICE & 1-CLICK WHATSAPP -->
+    <section id="view-billing" class="hidden max-w-4xl mx-auto space-y-5">
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 border-b border-stone-100 pb-4">
+          <div class="flex-1">
+            <label for="billing-order-select" class="block text-sm font-medium text-stone-600 mb-1">Select Booking for Billing &amp; Invoice</label>
+            <select id="billing-order-select" class="w-full rounded-xl border border-stone-200 px-3.5 py-3 font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-rose-400"></select>
+          </div>
+          <div class="grid grid-cols-2 sm:flex gap-2 shrink-0">
+            <button id="whatsapp-billing-btn" type="button" class="text-sm font-semibold px-4 py-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">
+              💬 WhatsApp
+            </button>
+            <button id="open-invoice-btn" type="button" class="text-sm font-semibold px-4 py-3 rounded-xl bg-stone-900 text-white hover:bg-stone-800">
+              🧾 Invoice
+            </button>
+          </div>
+        </div>
+
+        <div id="billing-empty" class="hidden text-center py-8 text-base text-stone-400">No bookings available. Create one first.</div>
+
+        <div id="billing-content" class="space-y-5">
+          <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <p class="text-sm font-bold uppercase tracking-wide text-stone-600">Package Details</p>
+              <div class="grid grid-cols-3 gap-3 sm:text-right bg-white sm:bg-transparent p-3 sm:p-0 rounded-xl border sm:border-0 border-stone-200">
+                <div>
+                  <p class="text-xs text-stone-500">Package</p>
+                  <p id="active-pkg-total" class="text-base font-bold text-stone-900">₹0</p>
+                </div>
+                <div>
+                  <p class="text-xs text-emerald-700">Collected</p>
+                  <p id="active-pkg-paid" class="text-base font-bold text-emerald-700">₹0</p>
+                </div>
+                <div>
+                  <p class="text-xs text-amber-700">Balance</p>
+                  <p id="active-pkg-balance" class="text-base font-bold text-amber-700">₹0</p>
+                </div>
+              </div>
+            </div>
+
+            <form id="edit-package-form" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <div class="sm:col-span-4">
+                <label for="bill-pkg-name" class="block text-xs font-medium text-stone-500 mb-1">Package Name</label>
+                <input id="bill-pkg-name" type="text" class="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5" />
+              </div>
+              <div class="sm:col-span-3">
+                <label for="bill-pkg-price" class="block text-xs font-medium text-stone-500 mb-1">Price (₹)</label>
+                <input id="bill-pkg-price" type="number" min="0" step="1" class="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5" />
+              </div>
+              <div class="sm:col-span-3">
+                <label for="bill-pkg-notes" class="block text-xs font-medium text-stone-500 mb-1">Inclusions</label>
+                <input id="bill-pkg-notes" type="text" class="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5" />
+              </div>
+              <div class="sm:col-span-2 flex items-end">
+                <button type="submit" class="w-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold px-3 py-2.5 rounded-xl">Save</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-stone-50 rounded-xl p-4 border border-stone-200 space-y-3">
+            <p class="text-sm font-bold uppercase tracking-wide text-stone-600">Record Payment from Each Party</p>
+            <form id="add-payment-form" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+              <input id="pay-party" type="text" placeholder="Party name (e.g. Bride / Groom side)" class="sm:col-span-5 rounded-xl border border-stone-200 bg-white px-3 py-2.5" required />
+              <input id="pay-amount" type="number" min="1" placeholder="Amount (₹)" class="sm:col-span-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5" required />
+              <select id="pay-mode" class="sm:col-span-2 rounded-xl border border-stone-200 bg-white px-2.5 py-2.5">
+                <option value="UPI">UPI</option>
+                <option value="Cash">Cash</option>
+                <option value="Card">Card</option>
+                <option value="Bank">Bank</option>
+              </select>
+              <button type="submit" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-3 py-2.5 rounded-xl">+ Record</button>
+            </form>
+            <ul id="order-payments-list" class="space-y-2"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: STATEMENTS & PAYMENTS CHECK -->
+    <section id="view-statements" class="hidden space-y-5">
+      <!-- Live Business Brief & 20+ Growth Insights -->
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-100 pb-3">
+          <div>
+            <h2 class="text-lg font-bold text-stone-900">Business Brief &amp; 20 Growth Insights</h2>
+            <p class="text-sm text-stone-500">Live summary from your bookings, slow months, and tips to grow orders.</p>
+          </div>
+          <span id="insights-health-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-rose-100 text-rose-700 w-fit">Live Stats</span>
+        </div>
+        <div id="business-insights-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+        <ol id="business-insights-list" class="space-y-2 text-sm text-stone-700 list-decimal pl-5"></ol>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-stone-900">Statement Check &amp; Party Ledger</h2>
+            <p class="text-sm text-stone-500">Verify package totals, collections, and pending balances.</p>
+          </div>
+          <button id="export-csv-btn" type="button" class="text-sm font-semibold px-4 py-3 rounded-xl bg-stone-900 text-white hover:bg-stone-800 w-full sm:w-auto">
+            Download CSV Statement
+          </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex flex-wrap gap-2" id="statement-filters">
+            <button type="button" data-sfilter="all" class="sfilter-btn px-3.5 py-2 rounded-xl text-sm font-semibold bg-stone-900 text-white">All</button>
+            <button type="button" data-sfilter="due" class="sfilter-btn px-3.5 py-2 rounded-xl text-sm font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Balance Due</button>
+            <button type="button" data-sfilter="paid" class="sfilter-btn px-3.5 py-2 rounded-xl text-sm font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Fully Paid</button>
+          </div>
+          <input id="statement-search" type="text" placeholder="Search client, package, or party..." class="w-full sm:w-72 rounded-xl border border-stone-200 px-3.5 py-2.5" />
+        </div>
+
+        <div id="statement-cards" class="space-y-3 sm:hidden"></div>
+        <table class="hidden sm:table w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-stone-200 text-xs font-semibold text-stone-500 uppercase">
+              <th class="py-2.5 pr-3">Date &amp; Booking</th>
+              <th class="py-2.5 px-3">Package</th>
+              <th class="py-2.5 px-3">Party Payments</th>
+              <th class="py-2.5 px-3 text-right">Total</th>
+              <th class="py-2.5 px-3 text-right">Collected</th>
+              <th class="py-2.5 pl-3 text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody id="statement-tbody" class="divide-y divide-stone-100 text-sm"></tbody>
+        </table>
+        <p id="statement-empty" class="hidden text-center text-base text-stone-400 py-6">No matching bookings found.</p>
+      </div>
+    </section>
+
+    <!-- TAB 6: 2-WAY RADICALE CALDAV SYNC -->
+    <section id="view-schedule" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <div class="lg:col-span-5 space-y-4">
+        <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-5 shadow-sm space-y-4">
+          <div>
+            <h2 class="text-lg font-bold text-stone-900">2-Way Radicale CalDAV Sync</h2>
+            <p class="text-sm text-stone-500 mt-1">Pulls events from Radicale and pushes all blocked event days.</p>
+          </div>
+          <form id="radicale-form" class="space-y-3">
+            <div>
+              <label for="cal-url" class="block text-sm font-medium text-stone-600 mb-1">Radicale Calendar URL</label>
+              <input id="cal-url" type="url" placeholder="https://cal.yourdomain.com/user/zuzu-orders/" class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5" />
+            </div>
+            <div class="grid grid-cols-2 gap-2.5">
+              <div>
+                <label for="cal-user" class="block text-sm font-medium text-stone-600 mb-1">Username</label>
+                <input id="cal-user" type="text" placeholder="username" class="w-full rounded-xl border border-stone-200 px-3 py-2.5" />
+              </div>
+              <div>
+                <label for="cal-pass" class="block text-sm font-medium text-stone-600 mb-1">Password</label>
+                <input id="cal-pass" type="password" placeholder="••••••••" class="w-full rounded-xl border border-stone-200 px-3 py-2.5" />
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button type="submit" class="bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm py-3 rounded-xl">Save Settings</button>
+              <button id="sync-radicale-btn" type="button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3 rounded-xl">Sync 2-Way</button>
+            </div>
+          </form>
+          <p id="radicale-status" class="text-sm text-stone-500 bg-stone-50 rounded-xl p-3 border border-stone-100 break-words">
+            Not synced yet. Save your Radicale URL when deployed on TrueNAS.
+          </p>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <div>
+          <h2 class="text-lg font-bold text-stone-900">Blocked Dates Timeline</h2>
+          <p class="text-sm text-stone-500">All event days, times, Google Maps shortcuts, and synced Radicale blocks.</p>
+        </div>
+        <div id="schedule-list" class="space-y-2.5"></div>
+        <p id="schedule-empty" class="hidden text-center text-base text-stone-400 py-8">No dated bookings or synced Radicale events yet.</p>
+      </div>
+    </section>
+    <!-- TAB 7: STAFF ATTENDANCE & PAYROLL -->
+    <section id="view-staff" class="hidden space-y-5">
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-stone-900">Daily Staff Attendance</h2>
+            <p class="text-sm text-stone-500">Tap Present, Half Day, or Absent for each employee.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="staff-prev-day" type="button" class="px-3.5 py-2.5 rounded-xl border border-stone-200 font-semibold hover:bg-stone-50">◀</button>
+            <input id="staff-att-date" type="date" class="rounded-xl border border-stone-200 px-3 py-2.5 font-medium" />
+            <button id="staff-next-day" type="button" class="px-3.5 py-2.5 rounded-xl border border-stone-200 font-semibold hover:bg-stone-50">▶</button>
+          </div>
+        </div>
+        <div id="staff-attendance-list" class="space-y-3"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-stone-900">Monthly Payroll Summary</h2>
+            <p class="text-sm text-stone-500">Auto-calculated from daily attendance for payroll day.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <input id="staff-payroll-month" type="month" class="rounded-xl border border-stone-200 px-3 py-2.5 font-medium" />
+            <button id="export-staff-csv-btn" type="button" class="px-4 py-2.5 rounded-xl bg-rose-500 text-white font-semibold hover:bg-rose-600">📥 Payroll CSV</button>
+          </div>
+        </div>
+        <div id="staff-payroll-list" class="space-y-2.5"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-stone-900">Add Employee</h2>
+        <form id="add-staff-form" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <input id="staff-name" type="text" placeholder="Employee Name" class="rounded-xl border border-stone-200 px-3.5 py-2.5" required />
+          <input id="staff-role" type="text" placeholder="Role (e.g. Stylist)" class="rounded-xl border border-stone-200 px-3.5 py-2.5" />
+          <input id="staff-rate" type="number" min="0" step="1" placeholder="Daily Rate (₹)" class="rounded-xl border border-stone-200 px-3.5 py-2.5" required />
+          <button type="submit" class="bg-stone-800 hover:bg-stone-900 text-white font-semibold rounded-xl px-4 py-2.5">+ Add Staff</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <!-- Contact Picker Modal -->
+  <div id="contact-picker-modal" class="hidden fixed inset-0 z-50 bg-stone-900/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-stone-900">Pick Contact Number</h3>
+        <button id="close-contact-modal" type="button" class="text-stone-400 hover:text-stone-700 text-xl font-bold px-2">&times;</button>
+      </div>
+      <input id="contact-search-input" type="search" placeholder="Search saved clients..." class="w-full rounded-xl border border-stone-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400" />
+      <div id="contact-saved-list" class="max-h-56 overflow-y-auto space-y-2"></div>
+      <div class="pt-3 border-t border-stone-100 space-y-2">
+        <button id="import-vcf-trigger" type="button" class="w-full py-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 font-semibold text-sm hover:bg-rose-100">
+          📇 Import Phone Contact (.vcf file)
+        </button>
+        <p class="text-xs text-stone-400 text-center">Browser Contacts API isn't available in this preview; on iPhone you can also paste a number or share a .vcf contact card.</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- INVOICE MODAL -->
+  <div id="invoice-modal" class="hidden fixed inset-0 z-50 bg-stone-900/50 flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl border border-rose-100">
+      <div id="invoice-print-area" class="p-5 sm:p-8 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b border-stone-200 pb-4">
+          <div class="flex items-center gap-3">
+            <img id="inv-studio-logo" src="icon-192.png" alt="Zuzu Beauty Studio Logo" class="w-16 h-16 rounded-full object-cover border border-rose-200 shrink-0" />
+            <div>
+              <h2 id="inv-studio-name" class="text-xl font-bold text-stone-900"></h2>
+              <p id="inv-studio-addr" class="text-sm text-stone-500 break-words"></p>
+              <p id="inv-studio-phone" class="text-sm text-stone-500"></p>
+            </div>
+          </div>
+          <div class="sm:text-right">
+            <p class="text-xs font-semibold uppercase tracking-wider text-rose-600">Invoice / Receipt</p>
+            <p id="inv-number" class="text-base font-bold text-stone-900 mt-0.5"></p>
+            <p id="inv-date" class="text-xs text-stone-500"></p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-rose-50/50 rounded-xl p-4 border border-rose-100 text-sm">
+          <div>
+            <p class="text-xs font-semibold text-stone-500 uppercase">Billed To</p>
+            <p id="inv-client" class="text-base font-bold text-stone-900 mt-0.5 break-words"></p>
+            <p id="inv-client-phone" class="text-sm text-stone-600"></p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-stone-500 uppercase">Event Schedule</p>
+            <div id="inv-event-date" class="text-sm font-medium text-stone-800 mt-0.5 space-y-0.5"></div>
+          </div>
+        </div>
+
+        <table class="w-full text-left border-collapse text-base">
+          <thead>
+            <tr class="border-b border-stone-200 text-xs font-semibold text-stone-500 uppercase">
+              <th class="py-2">Package &amp; Details</th>
+              <th class="py-2 text-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-stone-100">
+              <td class="py-3 pr-3">
+                <p id="inv-pkg-name" class="font-semibold text-stone-900"></p>
+                <p id="inv-pkg-notes" class="text-sm text-stone-500 break-words"></p>
+              </td>
+              <td id="inv-pkg-price" class="py-3 text-right font-semibold text-stone-900 whitespace-nowrap"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="space-y-2">
+          <p class="text-xs font-semibold uppercase text-stone-500">Payments Collected (Party-wise)</p>
+          <ul id="inv-payments-list" class="space-y-1 text-sm"></ul>
+        </div>
+
+        <div class="border-t border-stone-200 pt-4 flex flex-col items-end space-y-1 text-base">
+          <div class="flex justify-between w-full sm:w-64">
+            <span class="text-stone-500">Package Total:</span>
+            <span id="inv-total" class="font-semibold text-stone-900"></span>
+          </div>
+          <div class="flex justify-between w-full sm:w-64">
+            <span class="text-emerald-700">Total Collected:</span>
+            <span id="inv-paid" class="font-semibold text-emerald-700"></span>
+          </div>
+          <div class="flex justify-between w-full sm:w-64 text-lg font-bold pt-1 border-t border-stone-200">
+            <span class="text-stone-900">Balance Due:</span>
+            <span id="inv-balance" class="text-rose-600"></span>
+          </div>
+        </div>
+
+        <p class="text-xs text-center text-stone-400 pt-2">Thank you for choosing Zuzu Beauty Studio!</p>
+      </div>
+
+      <div class="no-print grid grid-cols-2 sm:flex sm:justify-end gap-2 px-5 py-4 bg-stone-50 border-t border-stone-200 rounded-b-2xl">
+        <button id="whatsapp-invoice-btn" type="button" class="text-sm font-semibold px-4 py-2.5 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700">💬 WhatsApp</button>
+        <button id="copy-invoice-btn" type="button" class="text-sm font-semibold px-4 py-2.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-100">Copy Text</button>
+        <button id="print-invoice-btn" type="button" class="text-sm font-semibold px-4 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600">Print / PDF</button>
+        <button id="close-invoice-btn" type="button" class="text-sm font-semibold px-4 py-2.5 rounded-xl bg-stone-900 text-white hover:bg-stone-800">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDIO INFO & LOGO MODAL -->
+  <div id="studio-modal" class="hidden fixed inset-0 z-50 bg-stone-900/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-rose-100 space-y-4 max-h-[90vh] overflow-y-auto">
+      <h2 class="text-lg font-bold text-stone-900">Zuzu Beauty Studio Profile &amp; Logo</h2>
+      <form id="studio-form" class="space-y-3">
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-rose-50/50 border border-rose-100">
+          <img id="st-logo-preview" src="icon-192.png" alt="Studio Logo" class="w-16 h-16 rounded-full object-cover border border-rose-200 shrink-0" />
+          <div>
+            <p class="text-xs font-semibold text-stone-700 mb-1.5">Studio Logo (Header &amp; Invoices)</p>
+            <label class="inline-block text-xs font-semibold px-3 py-2 rounded-lg bg-white border border-rose-200 text-rose-700 cursor-pointer">
+              Upload New Logo
+              <input id="st-logo-input" type="file" accept="image/*" class="hidden" />
+            </label>
+          </div>
+        </div>
+        <div>
+          <label for="st-name" class="block text-sm font-medium text-stone-600 mb-1">Studio Name</label>
+          <input id="st-name" type="text" class="w-full rounded-xl border border-stone-200 px-3 py-2.5" required />
+        </div>
+        <div>
+          <label for="st-addr" class="block text-sm font-medium text-stone-600 mb-1">Address</label>
+          <input id="st-addr" type="text" class="w-full rounded-xl border border-stone-200 px-3 py-2.5" />
+        </div>
+        <div>
+          <label for="st-phone" class="block text-sm font-medium text-stone-600 mb-1">Phone</label>
+          <input id="st-phone" type="text" class="w-full rounded-xl border border-stone-200 px-3 py-2.5" />
+        </div>
+        <div>
+          <label for="st-hours" class="block text-sm font-medium text-stone-600 mb-1">Hours</label>
+          <input id="st-hours" type="text" class="w-full rounded-xl border border-stone-200 px-3 py-2.5" />
+        </div>
+        <div class="pt-2 border-t border-stone-100 space-y-2.5">
+          <p class="text-sm font-bold text-stone-800">App Login Lock (Optional)</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="st-login-user" class="block text-xs font-medium text-stone-600 mb-1">Username</label>
+              <input id="st-login-user" type="text" placeholder="zuzu" class="w-full rounded-xl border border-stone-200 px-3 py-2" />
+            </div>
+            <div>
+              <label for="st-login-pass" class="block text-xs font-medium text-stone-600 mb-1">New Password</label>
+              <input id="st-login-pass" type="password" placeholder="Leave blank to keep" class="w-full rounded-xl border border-stone-200 px-3 py-2" />
+            </div>
+          </div>
+          <label class="flex items-center gap-2 text-xs text-stone-600 cursor-pointer">
+            <input id="st-login-enabled" type="checkbox" class="w-4 h-4 accent-rose-500 rounded" />
+            <span>Require login when opening app</span>
+          </label>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button id="close-studio-btn" type="button" class="text-sm font-semibold px-4 py-2.5 rounded-xl border border-stone-200">Cancel</button>
+          <button type="submit" class="text-sm font-semibold px-4 py-2.5 rounded-xl bg-rose-500 text-white hover:bg-rose-600">Save Studio Info</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function addDaysISO(days) {
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      return d.toISOString().split("T")[0];
+    }
+
+    const STORAGE_KEY = "zuzu_beauty_studio_v2";
+
+    const defaultCustomFields = [
+      { id: "eye_colour", label: "Eye Colour", type: "text", options: [] },
+      { id: "lens_user", label: "Contact Lens or Spectacles User", type: "yesno", options: ["YES", "NO"] },
+      { id: "skin_type", label: "Skin Type", type: "select", options: ["Combination", "Dry", "Oily", "Other"] },
+      { id: "skin_colour", label: "Skin Colour", type: "select", options: ["Pale", "Fair (Freckles)", "Olive", "Tanned", "Asian", "Black"] },
+      { id: "allergies", label: "Allergies / Conditions / Reactions to Cosmetics?", type: "yesno", options: ["YES", "NO"] },
+      { id: "allergies_details", label: "If Yes, Allergy Details", type: "text", options: [] },
+      { id: "hair_colour", label: "Hair Colour", type: "text", options: [] },
+      { id: "hair_length", label: "Hair Length", type: "text", options: [] },
+      { id: "bridal_style", label: "Desired Bridal Style (If Known)", type: "text", options: [] },
+      { id: "bridesmaids_makeup", label: "Bridesmaids / Mother of Bride Hair & Make-Up?", type: "yesno", options: ["YES", "NO"] },
+      { id: "bridesmaids_details", label: "If Yes, Bridesmaids Details", type: "text", options: [] },
+      { id: "require_trial", label: "Do They Require A Trial?", type: "yesno", options: ["YES", "NO"] }
+    ];
+
+    const defaultState = {
+      studio: {
+        name: "Zuzu Beauty Studio",
+        address: "11, Ammankovilpatti South Street, Senayapuram Colony, Sivakasi, Tamil Nadu - 626123",
+        phone: "+91 75986 31207",
+        hours: "Mon–Sat: 10:30 AM – 2:30 PM, 3:30 PM – 6:00 PM | Sun: Closed",
+        logo: ""
+      },
+      customFields: structuredClone(defaultCustomFields),
+      orders: [
+        {
+          id: 201,
+          name: "Bridal - Priya (#101)",
+          phone: "+91 98765 43210",
+          photo: "",
+          notes: "Soft glam look, prefers matte rose lip",
+          personalDetails: {
+            eye_colour: "Dark Brown",
+            lens_user: "NO",
+            skin_type: "Combination",
+            skin_colour: "Asian",
+            allergies: "NO",
+            require_trial: "YES"
+          },
+          date: addDaysISO(3),
+          events: [
+            { date: addDaysISO(3), time: "05:30", location: "Sri Kaliswari Mahal, Sivakasi" },
+            { date: addDaysISO(4), time: "09:00", location: "https://maps.google.com/?q=Sivakasi+Tamil+Nadu" }
+          ],
+          packageName: "Air Brush Bridal Package",
+          packageNotes: "Airbrush makeup, hair styling, saree draping & lashes",
+          packagePrice: 18000,
+          payments: [
+            { id: 301, party: "Bride Family (Advance)", amount: 8000, mode: "UPI", date: addDaysISO(-2) },
+            { id: 302, party: "Groom Family (Saree & Hair)", amount: 5000, mode: "Cash", date: addDaysISO(-1) }
+          ],
+          blocked: true,
+          syncedToRadicale: false
+        }
+      ],
+      activeOrderId: 201,
+      auth: { enabled: false, username: "zuzu", passHash: "" },
+      staff: [
+        { id: "st-1", name: "Divya", role: "Hair & Draping", dailyRate: 600 },
+        { id: "st-2", name: "Kavya", role: "Assistant", dailyRate: 450 }
+      ],
+      attendance: {},
+      radicale: { url: "", username: "", password: "" },
+      radicaleEvents: []
+    };
+
+    let state = structuredClone(defaultState);
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("zuzu_beauty_studio_v1");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && Array.isArray(parsed.orders)) {
+          state = { ...structuredClone(defaultState), ...parsed };
+          if (!Array.isArray(state.customFields) || state.customFields.length === 0) {
+            state.customFields = structuredClone(defaultCustomFields);
+          }
+        }
+      }
+    } catch (e) {}
+
+    let currentTab = "calendar";
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+    let pendingNewOrderPhoto = "";
+    let pendingStudioLogo = "";
+    let statementFilter = "all";
+    let statementSearch = "";
+
+    function getOrderEvents(order) {
+      if (Array.isArray(order.events) && order.events.length > 0) return order.events;
+      if (order.date) return [{ date: order.date, time: "", location: "" }];
+      return [];
+    }
+
+    function isSafeImageDataUrl(url) {
+      return typeof url === "string" && /^data:image\/(jpeg|jpg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(url);
+    }
+
+    function getGoogleMapsUrl(locationStr) {
+      const val = (locationStr || "").trim();
+      if (!val) return "";
+      if (/^https?:\/\//i.test(val)) return val;
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(val)}`;
+    }
+
+    function cleanTelHref(phoneStr) {
+      return "tel:" + String(phoneStr || "").replace(/[^\d+]/g, "");
+    }
+
+    function formatINR(num) {
+      return "₹" + Number(num || 0).toLocaleString("en-IN");
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.remove("hidden");
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.add("hidden"), 3000);
+    }
+
+    function compressPhotoFile(file, callback) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 360;
+          let w = img.width;
+          let h = img.height;
+          if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+          else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+      try {
+        await fetch("/api/data", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(state)
+        });
+      } catch (e) {}
+    }
+
+    async function loadServerDataset() {
+      try {
+        const res = await fetch("/api/data");
+        if (res.ok) {
+          const serverData = await res.json();
+          if (serverData && Array.isArray(serverData.orders)) {
+            state = { ...structuredClone(defaultState), ...serverData };
+            if (!Array.isArray(state.customFields) || state.customFields.length === 0) {
+              state.customFields = structuredClone(defaultCustomFields);
+            }
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+            // Hard-lock pinch/gesture/double-tap zoom on iPhone Safari & PWA
+    document.addEventListener("gesturestart", (e) => e.preventDefault(), { passive: false });
+    document.addEventListener("gesturechange", (e) => e.preventDefault(), { passive: false });
+    document.addEventListener("gestureend", (e) => e.preventDefault(), { passive: false });
+    document.addEventListener("touchstart", (e) => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, { passive: false });
+
+    renderAll();
+          }
+        }
+      } catch (e) {}
+    }
+
+    function getOrderTotals(order) {
+      const base = Number(order.packagePrice || 0);
+      const extrasSum = (Array.isArray(order.extraPackages) ? order.extraPackages : [])
+        .reduce((sum, ex) => sum + Number(ex?.price || 0), 0);
+      const total = base + extrasSum;
+      const paid = (order.payments || []).reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      const balance = Math.max(0, total - paid);
+      return { total, paid, balance, base, extrasSum };
+    }
+
+    const EXTRA_PACKAGE_OPTIONS = [
+      { label: "Basic Party Makeup", value: "Basic Party Makeup", defaultPrice: 5000 },
+      { label: "HD Bridal", value: "HD Bridal Package", defaultPrice: 15000 },
+      { label: "Air Brush Bridal", value: "Air Brush Bridal Package", defaultPrice: 18000 },
+      { label: "Engagement / Reception", value: "Engagement / Reception Look", defaultPrice: 12000 },
+      { label: "Bridesmaid Makeup", value: "Bridesmaid Makeup", defaultPrice: 3500 },
+      { label: "Groom Makeup", value: "Groom Makeup", defaultPrice: 4000 },
+      { label: "Custom Package", value: "Custom Package", defaultPrice: 0 }
+    ];
+
+    const extraPackagesContainer = document.getElementById("extra-packages-container");
+    const addExtraPackageBtn = document.getElementById("add-extra-package-btn");
+
+    function renumberExtraPackageRows() {
+      Array.from(extraPackagesContainer.querySelectorAll(".extra-pkg-row")).forEach((row, idx) => {
+        const badge = row.querySelector(".extra-pkg-badge");
+        if (badge) badge.textContent = `Day / Item #${idx + 2}`;
+      });
+    }
+
+    function addExtraPackageRow(prefill = {}) {
+      const row = document.createElement("div");
+      row.className = "extra-pkg-row p-3 rounded-xl border border-rose-200 bg-white space-y-2.5";
+      const selectedChips = new Set(Array.isArray(prefill.items) ? prefill.items : []);
+
+      row.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <span class="extra-pkg-badge text-xs font-bold uppercase text-rose-700">Day / Item</span>
+          <button type="button" class="remove-extra-pkg-btn text-xs text-red-600 font-semibold">Remove</button>
+        </div>
+        <div class="flex flex-wrap gap-1.5 extra-pkg-chips">
+          ${EXTRA_PACKAGE_OPTIONS.map((opt) => {
+            const active = selectedChips.has(opt.value);
+            return `<button type="button" data-pkg-val="${escapeHtml(opt.value)}" data-pkg-price="${opt.defaultPrice}" class="extra-pkg-chip text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${active ? "bg-rose-500 text-white border-rose-500" : "bg-rose-50/70 text-stone-700 border-rose-200 hover:bg-rose-100"}">${active ? "✓ " : "+ "}${escapeHtml(opt.label)}</button>`;
+          }).join("")}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1">Package Label / Day</label>
+            <input type="text" class="extra-pkg-label w-full rounded-xl border border-stone-200 px-3 py-2" placeholder="e.g. Day 2 Reception — HD" value="${escapeHtml(prefill.label || "")}" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-stone-600 mb-1">Amount (₹)</label>
+            <input type="number" min="0" step="1" class="extra-pkg-price w-full rounded-xl border border-stone-200 px-3 py-2" placeholder="12000" value="${Number(prefill.price || 0) || ""}" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-stone-600 mb-1">Day / Item Inclusions (Optional)</label>
+          <input type="text" class="extra-pkg-notes w-full rounded-xl border border-stone-200 px-3 py-2" placeholder="e.g. Reception hairdo, saree &amp; lashes" value="${escapeHtml(prefill.notes || "")}" />
+        </div>
+      `;
+
+      const labelInput = row.querySelector(".extra-pkg-label");
+      const priceInput = row.querySelector(".extra-pkg-price");
+
+      row.querySelectorAll(".extra-pkg-chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          const val = chip.dataset.pkgVal;
+          const defPrice = Number(chip.dataset.pkgPrice || 0);
+          const chipTitle = chip.textContent.replace(/^[+✓]\s*/, "");
+          if (selectedChips.has(val)) {
+            selectedChips.delete(val);
+            chip.classList.remove("bg-rose-500", "text-white", "border-rose-500");
+            chip.classList.add("bg-rose-50/70", "text-stone-700", "border-rose-200");
+            chip.textContent = `+ ${chipTitle}`;
+            if (defPrice > 0) {
+              priceInput.value = Math.max(0, Number(priceInput.value || 0) - defPrice) || "";
+            }
+          } else {
+            selectedChips.add(val);
+            chip.classList.remove("bg-rose-50/70", "text-stone-700", "border-rose-200");
+            chip.classList.add("bg-rose-500", "text-white", "border-rose-500");
+            chip.textContent = `✓ ${chipTitle}`;
+            if (defPrice > 0) {
+              priceInput.value = Number(priceInput.value || 0) + defPrice;
+            }
+          }
+          const labels = Array.from(selectedChips);
+          if (labels.length > 0 && !labelInput.dataset.manualEdited) {
+            labelInput.value = labels.join(" + ");
+          }
+        });
+      });
+
+      labelInput.addEventListener("input", () => {
+        labelInput.dataset.manualEdited = labelInput.value.trim() ? "1" : "";
+      });
+
+      row.querySelector(".remove-extra-pkg-btn").addEventListener("click", () => {
+        row.remove();
+        renumberExtraPackageRows();
+      });
+
+      extraPackagesContainer.appendChild(row);
+      renumberExtraPackageRows();
+    }
+
+    addExtraPackageBtn.addEventListener("click", () => {
+      const nextDay = extraPackagesContainer.children.length + 2;
+      addExtraPackageRow({ label: `Day ${nextDay} — ` });
+    });
+
+    function getExtraPackagesFromForm() {
+      return Array.from(extraPackagesContainer.querySelectorAll(".extra-pkg-row")).map((row, idx) => {
+        const items = Array.from(row.querySelectorAll(".extra-pkg-chip.bg-rose-500")).map((c) => c.dataset.pkgVal);
+        const rawLabel = row.querySelector(".extra-pkg-label").value.trim();
+        const price = Number(row.querySelector(".extra-pkg-price").value || 0);
+        const notes = row.querySelector(".extra-pkg-notes").value.trim();
+        const fallbackLabel = items.length ? `Day ${idx + 2}: ${items.join(" + ")}` : `Day ${idx + 2} Package`;
+        return {
+          label: rawLabel || fallbackLabel,
+          items,
+          price,
+          notes
+        };
+      }).filter((p) => p.price > 0 || p.items.length > 0 || p.notes || (rowLabelHasText(p.label)));
+    }
+
+    function rowLabelHasText(lbl) {
+      return !!lbl && !/^Day \d+ —\s*$/.test(lbl.trim());
+    }
+
+    function getOrderCombinedPackageName(order) {
+      const extras = Array.isArray(order.extraPackages) ? order.extraPackages : [];
+      const activeExtras = extras.filter((ex) => ex && (ex.price > 0 || (ex.items && ex.items.length) || ex.label));
+      if (!activeExtras.length) return order.packageName || "Custom Package";
+      const extraLabels = activeExtras.map((ex) => ex.label || (ex.items || []).join(" + ")).filter(Boolean);
+      return [order.packageName || "Package", ...extraLabels].join(" | ");
+    }
+
+    function getOrderCombinedPackageNotes(order) {
+      const parts = [];
+      if (order.packageNotes) parts.push(`Day 1: ${order.packageNotes}`);
+      const extras = Array.isArray(order.extraPackages) ? order.extraPackages : [];
+      extras.forEach((ex, i) => {
+        if (ex && (ex.notes || ex.price > 0 || ex.label)) {
+          const title = ex.label || `Day ${i + 2}`;
+          const amtText = ex.price > 0 ? ` (${formatINR(ex.price)})` : "";
+          const noteText = ex.notes ? ` — ${ex.notes}` : "";
+          parts.push(`${title}${amtText}${noteText}`);
+        }
+      });
+      return parts.join(" • ");
+    }
+
+
+    function checkDateBlocked(dateStr) {
+      if (!dateStr) return null;
+      const rad = state.radicaleEvents.find((ev) => ev.date === dateStr);
+      if (rad) return `Date ${dateStr} is already blocked in Radicale: "${rad.summary}"`;
+      const ord = state.orders.find((o) => o.blocked && getOrderEvents(o).some((ev) => ev.date === dateStr));
+      if (ord) return `Date ${dateStr} is already blocked by booking: "${ord.name}"`;
+      return null;
+    }
+
+    const eventDaysContainer = document.getElementById("event-days-container");
+    function addEventDayRow(defaultDate = "") {
+      const idx = eventDaysContainer.children.length + 1;
+      const row = document.createElement("div");
+      row.className = "event-day-row p-3.5 rounded-xl border border-stone-200 bg-stone-50/70 space-y-2.5";
+      row.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase text-stone-500">Day ${idx}</span>
+          ${idx > 1 ? '<button type="button" class="remove-day-btn text-xs text-red-600 font-semibold">Remove</button>' : ""}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <input type="date" class="ev-date w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-400" value="${escapeHtml(defaultDate)}" />
+          <input type="time" class="ev-time w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+        </div>
+        <input type="text" placeholder="Google Maps link or Venue address" class="ev-loc w-full rounded-xl border border-stone-200 bg-white px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-400" />
+      `;
+      const dateInput = row.querySelector(".ev-date");
+      dateInput.addEventListener("change", () => {
+        const hint = document.getElementById("date-conflict-hint");
+        const msg = checkDateBlocked(dateInput.value);
+        if (msg) { hint.textContent = msg; hint.classList.remove("hidden"); }
+        else { hint.classList.add("hidden"); }
+      });
+      const rm = row.querySelector(".remove-day-btn");
+      if (rm) {
+        rm.addEventListener("click", () => {
+          row.remove();
+          Array.from(eventDaysContainer.children).forEach((el, i) => {
+            el.querySelector("span").textContent = `Day ${i + 1}`;
+          });
+        });
+      }
+      eventDaysContainer.appendChild(row);
+    }
+
+    document.getElementById("add-event-day-btn").addEventListener("click", () => addEventDayRow());
+    addEventDayRow();
+
+    function renderStudioHeader() {
+      document.getElementById("header-studio-name").textContent = state.studio.name;
+      
+      if (isSafeImageDataUrl(state.studio.logo)) {
+        const loginLogo = document.getElementById("login-studio-logo");
+        if (loginLogo) loginLogo.src = state.studio.logo;
+        document.getElementById("header-studio-logo").src = state.studio.logo;
+        document.getElementById("inv-studio-logo").src = state.studio.logo;
+        document.getElementById("st-logo-preview").src = state.studio.logo;
+      }
+    }
+
+    function renderKPIs() {
+      let totalCollected = 0;
+      let totalBalance = 0;
+      state.orders.forEach((o) => {
+        const t = getOrderTotals(o);
+        totalCollected += t.paid;
+        totalBalance += t.balance;
+      });
+      document.getElementById("kpi-orders").textContent = state.orders.length;
+      document.getElementById("kpi-collected").textContent = formatINR(totalCollected);
+      document.getElementById("kpi-balance").textContent = formatINR(totalBalance);
+    }
+
+    function renderCalendar() {
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      document.getElementById("cal-month-title").textContent = `${monthNames[calMonth]} ${calYear}`;
+
+      const grid = document.getElementById("calendar-grid");
+      grid.innerHTML = "";
+
+      const firstDay = new Date(calYear, calMonth, 1).getDay();
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      const todayIso = addDaysISO(0);
+
+      const dayMap = {};
+      state.orders.forEach((o) => {
+        getOrderEvents(o).forEach((ev) => {
+          if (!ev.date) return;
+          if (!dayMap[ev.date]) dayMap[ev.date] = [];
+          dayMap[ev.date].push({ type: "order", orderId: o.id, label: o.name, time: ev.time || "" });
+        });
+      });
+      state.radicaleEvents.forEach((ev) => {
+        if (!ev.date) return;
+        if (!dayMap[ev.date]) dayMap[ev.date] = [];
+        dayMap[ev.date].push({ type: "radicale", label: ev.summary, time: "" });
+      });
+
+      for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement("div");
+        blank.className = "min-h-[72px] sm:min-h-[90px] rounded-xl bg-stone-50/50";
+        grid.appendChild(blank);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const items = dayMap[iso] || [];
+        const isToday = iso === todayIso;
+
+        const isBooked = items.length > 0;
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className =
+          "min-h-[64px] sm:min-h-[78px] p-1.5 sm:p-2 rounded-2xl border transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-sm " +
+          (isBooked
+            ? "border-rose-300 bg-rose-50 hover:bg-rose-100"
+            : isToday
+              ? "border-emerald-400 bg-emerald-50/70 hover:bg-emerald-100"
+              : "border-stone-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40");
+
+        cell.innerHTML = `
+          <span class="text-sm sm:text-base font-bold ${isBooked ? "text-rose-800" : isToday ? "text-emerald-700" : "text-stone-800"}">${d}</span>
+          <span class="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold ${
+            isBooked
+              ? "bg-rose-500 text-white shadow-sm"
+              : "border-2 border-stone-300 bg-white text-transparent"
+          }">${isBooked ? "✓" : ""}</span>
+        `;
+
+        cell.addEventListener("click", () => {
+          const firstOrder = items.find((it) => it.type === "order");
+          if (firstOrder) {
+            state.activeOrderId = firstOrder.orderId;
+            saveState();
+            switchTab("orders");
+            renderAll();
+          } else {
+            eventDaysContainer.innerHTML = "";
+            addEventDayRow(iso);
+            switchTab("new-order");
+            showToast(`Selected ${iso} for new booking`);
+          }
+        });
+
+        grid.appendChild(cell);
+      }
+
+      const upList = document.getElementById("cal-upcoming-list");
+      upList.innerHTML = "";
+      const upcoming = [];
+      state.orders.forEach((o) => {
+        getOrderEvents(o).forEach((ev, idx) => {
+          if (ev.date && ev.date >= todayIso) {
+            upcoming.push({ date: ev.date, time: ev.time || "", location: ev.location || "", order: o, dayNum: idx + 1 });
+          }
+        });
+      });
+      upcoming.sort((a, b) => a.date.localeCompare(b.date));
+
+      if (upcoming.length === 0) {
+        upList.innerHTML = '<p class="text-sm text-stone-400">No upcoming events. Tap any date above to add one!</p>';
+        return;
+      }
+
+      upcoming.forEach((u) => {
+        const mapUrl = getGoogleMapsUrl(u.location);
+        const row = document.createElement("div");
+        row.className = "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 p-3.5 rounded-xl border border-stone-200 bg-stone-50/50";
+        row.innerHTML = `
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-stone-900">${escapeHtml(u.date)}${u.time ? " • " + escapeHtml(u.time) : ""} — ${escapeHtml(u.order.name)} (Day ${u.dayNum})</p>
+            <p class="text-sm text-stone-500 break-words">${u.location ? escapeHtml(u.location) : "No location"}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${mapUrl ? `<a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold px-3.5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">📍 Map</a>` : ""}
+            <button type="button" class="open-cal-ord text-sm font-semibold px-3.5 py-2 rounded-xl bg-rose-500 text-white hover:bg-rose-600">Open</button>
+          </div>
+        `;
+        row.querySelector(".open-cal-ord").addEventListener("click", () => {
+          state.activeOrderId = u.order.id;
+          saveState();
+          switchTab("orders");
+          renderAll();
+        });
+        upList.appendChild(row);
+      });
+    }
+
+    function renderOrdersList() {
+      const list = document.getElementById("orders-list");
+      const empty = document.getElementById("orders-empty");
+      list.innerHTML = "";
+
+      if (state.orders.length === 0) {
+        empty.classList.remove("hidden");
+        return;
+      }
+      empty.classList.add("hidden");
+
+      state.orders.forEach((order) => {
+        const isActive = order.id === state.activeOrderId;
+        const t = getOrderTotals(order);
+        const evs = getOrderEvents(order);
+        const dateSummary = evs.length > 1 ? `${evs[0].date} (+${evs.length - 1}d)` : (evs[0]?.date || "No date");
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className =
+          "w-full text-left p-3.5 rounded-xl border transition-all flex items-center gap-3 " +
+          (isActive ? "bg-rose-50 border-rose-400 shadow-sm" : "bg-white border-stone-200 hover:border-rose-200");
+
+        const thumb = isSafeImageDataUrl(order.photo)
+          ? `<img src="${order.photo}" alt="" class="w-12 h-12 rounded-xl object-cover border border-rose-200 shrink-0" />`
+          : `<div class="w-12 h-12 rounded-xl bg-rose-100 flex items-center justify-center text-xl shrink-0">👩🏻</div>`;
+
+        btn.innerHTML = `
+          ${thumb}
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <span class="font-semibold text-base text-stone-900 break-words">${escapeHtml(order.name)}</span>
+              <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0 ${
+                t.balance === 0 && t.total > 0 ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"
+              }">${t.balance === 0 && t.total > 0 ? "Paid" : "Due " + formatINR(t.balance)}</span>
+            </div>
+            <p class="text-xs sm:text-sm text-stone-500 mt-0.5 break-words">${escapeHtml(dateSummary)}</p>
+          </div>
+        `;
+        btn.addEventListener("click", () => {
+          state.activeOrderId = order.id;
+          saveState();
+          renderAll();
+        });
+        list.appendChild(btn);
+      });
+    }
+
+    function renderPersonalDetails(order) {
+      const grid = document.getElementById("personal-details-grid");
+      const manager = document.getElementById("custom-fields-manager");
+      grid.innerHTML = "";
+      manager.innerHTML = "";
+      if (!order.personalDetails) order.personalDetails = {};
+
+      state.customFields.forEach((field) => {
+        const chip = document.createElement("span");
+        chip.className = "inline-flex items-center gap-1.5 text-xs font-medium bg-rose-50 text-rose-800 px-3 py-1.5 rounded-full border border-rose-200";
+        chip.innerHTML = `<span>${escapeHtml(field.label)}</span>`;
+        const delChip = document.createElement("button");
+        delChip.type = "button";
+        delChip.textContent = "×";
+        delChip.className = "font-bold text-rose-600 hover:text-red-700 text-base leading-none";
+        delChip.addEventListener("click", () => {
+          state.customFields = state.customFields.filter((f) => f.id !== field.id);
+          saveState();
+          renderPersonalDetails(order);
+          showToast(`Removed "${field.label}"`);
+        });
+        chip.appendChild(delChip);
+        manager.appendChild(chip);
+
+        const wrap = document.createElement("div");
+        wrap.className = "space-y-1";
+        const lbl = document.createElement("label");
+        lbl.className = "block text-xs sm:text-sm font-semibold text-stone-700";
+        lbl.textContent = field.label;
+        wrap.appendChild(lbl);
+
+        const curVal = order.personalDetails[field.id] || "";
+
+        if (field.type === "yesno" || field.type === "select") {
+          const opts = field.type === "yesno" ? ["YES", "NO"] : (field.options || []);
+          const sel = document.createElement("select");
+          sel.className = "w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-400";
+          const emptyOpt = document.createElement("option");
+          emptyOpt.value = "";
+          emptyOpt.textContent = "— Select —";
+          sel.appendChild(emptyOpt);
+          opts.forEach((o) => {
+            const opt = document.createElement("option");
+            opt.value = o;
+            opt.textContent = o;
+            if (curVal === o) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener("change", (e) => {
+            order.personalDetails[field.id] = e.target.value;
+            saveState();
+          });
+          wrap.appendChild(sel);
+        } else {
+          const inp = document.createElement("input");
+          inp.type = "text";
+          inp.value = curVal;
+          inp.placeholder = "Enter details...";
+          inp.className = "w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-400";
+          inp.addEventListener("input", (e) => {
+            order.personalDetails[field.id] = e.target.value;
+            saveState();
+          });
+          wrap.appendChild(inp);
+        }
+
+        grid.appendChild(wrap);
+      });
+    }
+
+    function renderActiveOrder() {
+      const emptyBox = document.getElementById("no-order-selected");
+      const contentBox = document.getElementById("active-order-content");
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+
+      if (!order) {
+        emptyBox.classList.remove("hidden");
+        contentBox.classList.add("hidden");
+        return;
+      }
+
+      emptyBox.classList.add("hidden");
+      contentBox.classList.remove("hidden");
+
+      const photoBox = document.getElementById("active-order-photo-box");
+      if (isSafeImageDataUrl(order.photo)) {
+        photoBox.innerHTML = `<img src="${order.photo}" alt="${escapeHtml(order.name)}" class="w-full h-full object-cover" />`;
+      } else {
+        photoBox.innerHTML = "👩🏻";
+      }
+
+      const evs = getOrderEvents(order);
+      document.getElementById("active-order-title").textContent = order.name;
+      document.getElementById("active-order-meta").textContent =
+        `${evs.length} event day(s)${order.syncedToRadicale ? " • Synced 2-way with Radicale" : ""}`;
+
+      const phoneWrap = document.getElementById("active-order-phone-wrap");
+      if (order.phone) {
+        phoneWrap.innerHTML = `<a href="${escapeHtml(cleanTelHref(order.phone))}" class="inline-flex items-center gap-2 text-sm font-semibold px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100">📞 ${escapeHtml(order.phone)} (Tap to Call)</a>`;
+      } else {
+        phoneWrap.innerHTML = "";
+      }
+
+      document.getElementById("active-order-blocked-badge").classList.toggle("hidden", !order.blocked);
+
+      const evWrap = document.getElementById("active-order-events");
+      evWrap.innerHTML = "";
+      if (evs.length === 0) {
+        evWrap.innerHTML = '<p class="text-sm text-stone-500">No event date or location set.</p>';
+      } else {
+        evs.forEach((ev, idx) => {
+          const mapUrl = getGoogleMapsUrl(ev.location);
+          const row = document.createElement("div");
+          row.className = "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 bg-white p-3.5 rounded-xl border border-indigo-100";
+          row.innerHTML = `
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-stone-900">
+                Day ${idx + 1}: ${escapeHtml(ev.date || "TBD")}${ev.time ? " at " + escapeHtml(ev.time) : ""}
+              </p>
+              <p class="text-sm text-stone-500 break-words">${ev.location ? escapeHtml(ev.location) : "No location added"}</p>
+            </div>
+            ${
+              mapUrl
+                ? `<a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1 text-sm font-semibold px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shrink-0">📍 Open Map</a>`
+                : ""
+            }
+          `;
+          evWrap.appendChild(row);
+        });
+      }
+
+      renderPersonalDetails(order);
+      document.getElementById("active-order-notes").value = order.notes || "";
+    }
+
+    function renderBillingTab() {
+      const select = document.getElementById("billing-order-select");
+      const empty = document.getElementById("billing-empty");
+      const content = document.getElementById("billing-content");
+      select.innerHTML = "";
+
+      if (state.orders.length === 0) {
+        empty.classList.remove("hidden");
+        content.classList.add("hidden");
+        return;
+      }
+      empty.classList.add("hidden");
+      content.classList.remove("hidden");
+
+      state.orders.forEach((o) => {
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = `${o.name} — ${o.packageName || "Package"}`;
+        if (o.id === state.activeOrderId) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      const order = state.orders.find((o) => o.id === state.activeOrderId) || state.orders[0];
+      state.activeOrderId = order.id;
+
+      const totals = getOrderTotals(order);
+      document.getElementById("active-pkg-total").textContent = formatINR(totals.total);
+      document.getElementById("active-pkg-paid").textContent = formatINR(totals.paid);
+      document.getElementById("active-pkg-balance").textContent = formatINR(totals.balance);
+
+      document.getElementById("bill-pkg-name").value = order.packageName || "";
+      document.getElementById("bill-pkg-price").value = order.packagePrice || 0;
+      document.getElementById("bill-pkg-notes").value = order.packageNotes || "";
+
+      const payList = document.getElementById("order-payments-list");
+      payList.innerHTML = "";
+      (order.payments || []).forEach((p) => {
+        const li = document.createElement("li");
+        li.className = "flex items-center justify-between gap-2 bg-white px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm";
+        li.innerHTML = `
+          <div class="min-w-0">
+            <span class="font-semibold text-stone-800 break-words">${escapeHtml(p.party)}</span>
+            <span class="text-stone-400 block sm:inline sm:ml-2 text-xs">${escapeHtml(p.mode)} • ${escapeHtml(p.date || "")}</span>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="font-bold text-emerald-700">${formatINR(p.amount)}</span>
+          </div>
+        `;
+        const rmPay = document.createElement("button");
+        rmPay.type = "button";
+        rmPay.textContent = "×";
+        rmPay.className = "text-stone-400 hover:text-red-600 font-bold px-2 py-1 text-lg";
+        rmPay.addEventListener("click", () => {
+          order.payments = order.payments.filter((x) => x.id !== p.id);
+          saveState();
+          renderAll();
+        });
+        li.children[1].appendChild(rmPay);
+        payList.appendChild(li);
+      });
+    }
+
+    function renderBusinessInsights() {
+      const grid = document.getElementById("business-insights-grid");
+      const list = document.getElementById("business-insights-list");
+      const badge = document.getElementById("insights-health-badge");
+      if (!grid || !list) return;
+
+      const orders = state.orders || [];
+      const count = orders.length;
+      let totalRev = 0, totalPaid = 0, totalBal = 0, multiDayCount = 0;
+      let highest = null, lowest = null;
+      let missingPhone = 0, missingMap = 0, missingPhoto = 0, missingDetails = 0, dueCount = 0;
+      const pkgCounts = {}, pkgRev = {}, modeTotals = {};
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const monthCounts = Array(12).fill(0);
+      const curYear = new Date().getFullYear();
+
+      orders.forEach((o) => {
+        const t = getOrderTotals(o);
+        totalRev += t.total;
+        totalPaid += t.paid;
+        totalBal += t.balance;
+        if (t.balance > 0) dueCount++;
+        if (!highest || t.total > highest.val) highest = { name: o.name, val: t.total };
+        if (!lowest || t.total < lowest.val) lowest = { name: o.name, val: t.total };
+        if (!o.phone) missingPhone++;
+        if (!isSafeImageDataUrl(o.photo)) missingPhoto++;
+        const evs = getOrderEvents(o);
+        if (evs.length > 1) multiDayCount++;
+        if (evs.length === 0 || evs.every((e) => !e.location)) missingMap++;
+        if (!o.personalDetails || Object.keys(o.personalDetails).length === 0) missingDetails++;
+
+        const pk = o.packageName || "Custom Package";
+        pkgCounts[pk] = (pkgCounts[pk] || 0) + 1;
+        pkgRev[pk] = (pkgRev[pk] || 0) + t.total;
+
+        (o.payments || []).forEach((p) => {
+          const m = p.mode || "Other";
+          modeTotals[m] = (modeTotals[m] || 0) + Number(p.amount || 0);
+        });
+
+        evs.forEach((e) => {
+          if (e.date && e.date.startsWith(String(curYear))) {
+            const mIdx = Number(e.date.split("-")[1]) - 1;
+            if (mIdx >= 0 && mIdx < 12) monthCounts[mIdx]++;
+          }
+        });
+      });
+
+      const avgVal = count > 0 ? Math.round(totalRev / count) : 0;
+      const collRate = totalRev > 0 ? Math.round((totalPaid / totalRev) * 100) : 0;
+      const zeroMonths = monthNames.filter((_, i) => monthCounts[i] === 0);
+      const maxMonthVal = Math.max(...monthCounts);
+      const busiestMonths = maxMonthVal > 0 ? monthNames.filter((_, i) => monthCounts[i] === maxMonthVal) : [];
+      const topPkg = Object.keys(pkgCounts).sort((a, b) => pkgCounts[b] - pkgCounts[a])[0] || "None yet";
+      const topMode = Object.keys(modeTotals).sort((a, b) => modeTotals[b] - modeTotals[a])[0] || "UPI";
+      const blockedCount = orders.filter((o) => o.blocked).length;
+
+      badge.textContent = `${collRate}% Collected`;
+
+      grid.innerHTML = `
+        <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-100">
+          <p class="text-xs text-stone-500">Avg Booking Value</p>
+          <p class="text-lg font-bold text-rose-700">${formatINR(avgVal)}</p>
+        </div>
+        <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-100">
+          <p class="text-xs text-stone-500">Collection Rate</p>
+          <p class="text-lg font-bold text-emerald-700">${collRate}%</p>
+        </div>
+        <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-100">
+          <p class="text-xs text-stone-500">Multi-Day Events</p>
+          <p class="text-lg font-bold text-amber-700">${multiDayCount} / ${count}</p>
+        </div>
+        <div class="p-3 rounded-xl bg-indigo-50/70 border border-indigo-100">
+          <p class="text-xs text-stone-500">Empty Months (${curYear})</p>
+          <p class="text-lg font-bold text-indigo-700">${zeroMonths.length} / 12</p>
+        </div>
+      `;
+
+      const points = [
+        `<strong>Total Business Volume:</strong> You have <strong>${count}</strong> booking(s) worth <strong>${formatINR(totalRev)}</strong> total.`,
+        `<strong>Average Booking Value:</strong> Each booking averages <strong>${formatINR(avgVal)}</strong> — aim to bundle hair + saree + trial to lift this higher.`,
+        `<strong>Collection Health:</strong> You've collected <strong>${formatINR(totalPaid)} (${collRate}%)</strong>, with <strong>${formatINR(totalBal)}</strong> pending across <strong>${dueCount}</strong> booking(s).`,
+        `<strong>Zero-Order Months (${curYear}):</strong> ${zeroMonths.length ? zeroMonths.join(", ") : "None!"} — run early-bird or party-makeup promos 4–6 weeks before these slow months.`,
+        `<strong>Busiest Month (${curYear}):</strong> ${busiestMonths.length ? busiestMonths.join(", ") + " (" + maxMonthVal + " event day(s))" : "No dated events yet"} — lock bridal advances early for peak dates.`,
+        `<strong>Top Package:</strong> <strong>${escapeHtml(topPkg)}</strong> is your most-booked package (${pkgCounts[topPkg] || 0} booking(s), ${formatINR(pkgRev[topPkg] || 0)}).`,
+        `<strong>Highest vs Lowest Order:</strong> Highest is ${highest ? `<strong>${escapeHtml(highest.name)}</strong> (${formatINR(highest.val)})` : "N/A"}; lowest is ${lowest ? `<strong>${escapeHtml(lowest.name)}</strong> (${formatINR(lowest.val)})` : "N/A"}.`,
+        `<strong>Preferred Payment Mode:</strong> Most payments arrive via <strong>${escapeHtml(topMode)}</strong> (${formatINR(modeTotals[topMode] || 0)}) — keep your UPI QR ready at the venue.`,
+        `<strong>Pending Balance Follow-Up:</strong> Use the 1-click <strong>💬 WhatsApp</strong> button in Billing to send polite payment reminders for the ${dueCount} booking(s) with balance due.`,
+        `<strong>Multi-Day Upsell:</strong> ${multiDayCount} of ${count} bookings are multi-day events — always pitch reception + engagement combos using <strong>+ Add Day</strong>.`,
+        `<strong>Missing Phone Numbers:</strong> ${missingPhone} booking(s) have no phone number — add them so tap-to-call and 1-click WhatsApp invoices work instantly.`,
+        `<strong>Missing Google Map Links:</strong> ${missingMap} booking(s) have no venue/map link — save the venue link at booking time so you can open directions in 1 tap on event morning.`,
+        `<strong>Client Recognition Photos:</strong> ${missingPhoto} booking(s) lack a client photo — upload a quick photo during trial/inquiry to recognize brides immediately.`,
+        `<strong>Consultation Details:</strong> ${missingDetails} booking(s) have blank Personal Details — fill Skin Type, Allergies &amp; Trial status to avoid last-minute surprises.`,
+        `<strong>Customize Consultation Form:</strong> Use <strong>⚙️ Add / Remove Fields</strong> in Bookings to add studio-specific questions (e.g., Saree Draping, Hair Extensions).`,
+        `<strong>Calendar Date Blocking:</strong> ${blockedCount} of ${count} bookings are date-blocked — keep <strong>Block all event dates</strong> checked to prevent double-booking.`,
+        `<strong>2-Way Radicale Sync:</strong> Sync with Radicale in the Sync tab so personal/family events from Apple Calendar block dates automatically.`,
+        `<strong>Quick Calendar Booking:</strong> Tap any open date in the <strong>🗓️ Calendar</strong> tab to jump straight into New Booking with that date pre-filled.`,
+        `<strong>Split Party Tracking:</strong> Record Bride-side and Groom-side payments separately in Billing so both families get clear receipts.`,
+        `<strong>Regular Backups:</strong> Download a <strong>CSV Statement</strong> or <strong>Export</strong> JSON backup monthly for your records (passwords are automatically excluded).`
+      ];
+
+      list.innerHTML = points.map((pt) => `<li class="leading-relaxed">${pt}</li>`).join("");
+    }
+
+    function renderStatements() {
+      renderBusinessInsights();
+      const tbody = document.getElementById("statement-tbody");
+      const cards = document.getElementById("statement-cards");
+      const empty = document.getElementById("statement-empty");
+      tbody.innerHTML = "";
+      cards.innerHTML = "";
+
+      const q = statementSearch.trim().toLowerCase();
+      const filtered = state.orders.filter((o) => {
+        const t = getOrderTotals(o);
+        const matchesStatus = statementFilter === "all" || (statementFilter === "due" && t.balance > 0) || (statementFilter === "paid" && t.balance === 0);
+        const parties = (o.payments || []).map((p) => p.party.toLowerCase()).join(" ");
+        const matchesQuery = !q || o.name.toLowerCase().includes(q) || (o.packageName || "").toLowerCase().includes(q) || parties.includes(q);
+        return matchesStatus && matchesQuery;
+      });
+
+      if (filtered.length === 0) { empty.classList.remove("hidden"); return; }
+      empty.classList.add("hidden");
+
+      filtered.forEach((o) => {
+        const t = getOrderTotals(o);
+        const evs = getOrderEvents(o);
+        const dateLabel = evs.map((e) => e.date).filter(Boolean).join(", ") || "No date";
+        const partyHtml = (o.payments || []).length
+          ? o.payments.map((p) => `${escapeHtml(p.party)}: ${formatINR(p.amount)} (${escapeHtml(p.mode)})`).join("<br/>")
+          : '<span class="text-stone-400">No payments yet</span>';
+
+        const card = document.createElement("div");
+        card.className = "p-4 rounded-xl border border-stone-200 bg-white space-y-2.5";
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div><p class="font-semibold text-base text-stone-900 break-words">${escapeHtml(o.name)}</p><p class="text-xs sm:text-sm text-stone-500">${escapeHtml(dateLabel)} • ${escapeHtml(o.packageName || "Custom")}</p></div>
+            <span class="text-sm font-bold ${t.balance > 0 ? "text-amber-600" : "text-emerald-600"}">${t.balance > 0 ? "Due " + formatINR(t.balance) : "Paid"}</span>
+          </div>
+          <div class="text-sm text-stone-600 bg-stone-50 rounded-xl p-3">${partyHtml}</div>
+          <div class="flex justify-between text-sm pt-1 border-t border-stone-100"><span>Total: <strong>${formatINR(t.total)}</strong></span><span class="text-emerald-700">Collected: <strong>${formatINR(t.paid)}</strong></span></div>
+        `;
+        cards.appendChild(card);
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-rose-50/30";
+        tr.innerHTML = `
+          <td class="py-3 pr-3"><p class="font-semibold text-stone-900">${escapeHtml(o.name)}</p><p class="text-xs text-stone-400">${escapeHtml(dateLabel)}</p></td>
+          <td class="py-3 px-3 text-sm text-stone-700">${escapeHtml(o.packageName || "Custom")}</td>
+          <td class="py-3 px-3 text-sm text-stone-600">${partyHtml}</td>
+          <td class="py-3 px-3 text-right font-medium text-stone-900">${formatINR(t.total)}</td>
+          <td class="py-3 px-3 text-right font-semibold text-emerald-700">${formatINR(t.paid)}</td>
+          <td class="py-3 pl-3 text-right font-bold ${t.balance > 0 ? "text-amber-600" : "text-emerald-600"}">${formatINR(t.balance)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSchedule() {
+      document.getElementById("cal-url").value = state.radicale.url || "";
+      document.getElementById("cal-user").value = state.radicale.username || "";
+      document.getElementById("cal-pass").value = state.radicale.password || "";
+
+      const list = document.getElementById("schedule-list");
+      const empty = document.getElementById("schedule-empty");
+      list.innerHTML = "";
+
+      const combined = [];
+      state.orders.forEach((o) => {
+        getOrderEvents(o).forEach((ev, idx) => {
+          if (ev.date) {
+            combined.push({
+              type: "order", id: o.id, date: ev.date, time: ev.time || "", location: ev.location || "",
+              title: `${o.name} (Day ${idx + 1})`, blocked: !!o.blocked, synced: !!o.syncedToRadicale,
+              meta: o.packageName || "Package"
+            });
+          }
+        });
+      });
+      state.radicaleEvents.forEach((ev) => {
+        combined.push({ type: "radicale", date: ev.date, time: "", location: "", title: ev.summary, blocked: true, meta: "From Radicale CalDAV" });
+      });
+      combined.sort((a, b) => a.date.localeCompare(b.date));
+
+      if (combined.length === 0) { empty.classList.remove("hidden"); return; }
+      empty.classList.add("hidden");
+
+      combined.forEach((item) => {
+        const mapUrl = getGoogleMapsUrl(item.location);
+        const row = document.createElement("div");
+        row.className = "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3.5 rounded-xl border border-stone-200 bg-white";
+        row.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-stone-100 text-stone-700">${escapeHtml(item.date)}${item.time ? " " + escapeHtml(item.time) : ""}</span>
+              <span class="text-base font-semibold text-stone-900 break-words">${escapeHtml(item.title)}</span>
+              ${item.blocked ? '<span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">Blocked</span>' : ""}
+            </div>
+            <p class="text-sm text-stone-500 mt-1 break-words">${escapeHtml(item.meta)}${item.location ? " • " + escapeHtml(item.location) : ""}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${mapUrl ? `<a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold px-3.5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">📍 Open Map</a>` : ""}
+          </div>
+        `;
+        if (item.type === "order") {
+          const openBtn = document.createElement("button");
+          openBtn.type = "button";
+          openBtn.textContent = "Open";
+          openBtn.className = "text-sm font-semibold px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 hover:bg-rose-100";
+          openBtn.addEventListener("click", () => { state.activeOrderId = item.id; saveState(); switchTab("orders"); renderAll(); });
+          row.children[1].appendChild(openBtn);
+        }
+        list.appendChild(row);
+      });
+    }
+
+    // --- Phone Contact Picker (Native Contacts API + .vcf fallback) ---
+    function parseVcfContact(text) {
+      const fnMatch = text.match(/^FN[^:]*:(.*)$/im);
+      const telMatch = text.match(/^TEL[^:]*:(.*)$/im);
+      return {
+        name: fnMatch ? fnMatch[1].trim() : "",
+        phone: telMatch ? telMatch[1].trim() : "",
+      };
+    }
+
+    document.getElementById("pick-contact-btn").addEventListener("click", async () => {
+      if ("contacts" in navigator && "ContactsManager" in window) {
+        try {
+          const picked = await navigator.contacts.select(["name", "tel"], { multiple: false });
+          if (picked && picked.length > 0) {
+            const c = picked[0];
+            if (c.tel && c.tel[0]) document.getElementById("order-phone").value = c.tel[0];
+            const nameInput = document.getElementById("order-name");
+            if (!nameInput.value.trim() && c.name && c.name[0]) nameInput.value = c.name[0];
+            showToast("Contact added!");
+            return;
+          }
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
+      }
+      openContactPickerModal();
+    });
+
+    function openContactPickerModal() {
+      const modal = document.getElementById("contact-picker-modal");
+      const searchEl = document.getElementById("contact-search-input");
+      searchEl.value = "";
+      renderSavedContactsList("");
+      modal.classList.remove("hidden");
+    }
+
+    function renderSavedContactsList(q) {
+      const list = document.getElementById("contact-saved-list");
+      const term = (q || "").trim().toLowerCase();
+      const seen = new Set();
+      const items = [];
+      state.orders.forEach((o) => {
+        if (o.phone && !seen.has(o.phone)) {
+          seen.add(o.phone);
+          items.push({ name: o.name, phone: o.phone });
+        }
+      });
+      const filtered = items.filter((c) => !term || c.name.toLowerCase().includes(term) || c.phone.toLowerCase().includes(term));
+      if (filtered.length === 0) {
+        list.innerHTML = '<p class="text-sm text-stone-400 text-center py-4">No matching saved client numbers.</p>';
+        return;
+      }
+      list.innerHTML = filtered.map((c) => `
+        <button type="button" data-pick-phone="${escapeHtml(c.phone)}" data-pick-name="${escapeHtml(c.name)}" class="w-full text-left p-3 rounded-xl border border-stone-200 hover:bg-rose-50 flex items-center justify-between gap-2">
+          <span class="font-semibold text-stone-800 truncate">${escapeHtml(c.name)}</span>
+          <span class="text-sm font-medium text-rose-700 shrink-0">${escapeHtml(c.phone)}</span>
+        </button>
+      `).join("");
+      list.querySelectorAll("[data-pick-phone]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.getElementById("order-phone").value = btn.dataset.pickPhone;
+          const nameInput = document.getElementById("order-name");
+          if (!nameInput.value.trim()) nameInput.value = btn.dataset.pickName;
+          document.getElementById("contact-picker-modal").classList.add("hidden");
+          showToast("Contact selected!");
+        });
+      });
+    }
+
+    document.getElementById("contact-search-input").addEventListener("input", (e) => renderSavedContactsList(e.target.value));
+    document.getElementById("close-contact-modal").addEventListener("click", () => document.getElementById("contact-picker-modal").classList.add("hidden"));
+    document.getElementById("import-vcf-trigger").addEventListener("click", () => {
+      document.getElementById("contact-picker-modal").classList.add("hidden");
+      document.getElementById("vcf-contact-input").click();
+    });
+
+    document.getElementById("vcf-contact-input").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const parsed = parseVcfContact(String(reader.result || ""));
+        if (parsed.phone) document.getElementById("order-phone").value = parsed.phone;
+        const nameInput = document.getElementById("order-name");
+        if (!nameInput.value.trim() && parsed.name) nameInput.value = parsed.name;
+        showToast(parsed.phone ? "Contact imported!" : "No phone found in contact file");
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    function toLocalISODate(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    // --- Staff Attendance & Payroll ---
+    if (!Array.isArray(state.staff)) state.staff = [];
+    if (!state.attendance || typeof state.attendance !== "object") state.attendance = {};
+
+    const staffDateInput = document.getElementById("staff-att-date");
+    const staffMonthInput = document.getElementById("staff-payroll-month");
+    if (staffDateInput && !staffDateInput.value) staffDateInput.value = toLocalISODate(new Date());
+    if (staffMonthInput && !staffMonthInput.value) staffMonthInput.value = toLocalISODate(new Date()).slice(0, 7);
+
+    function renderStaff() {
+      const attList = document.getElementById("staff-attendance-list");
+      const payList = document.getElementById("staff-payroll-list");
+      if (!attList || !payList) return;
+
+      const dateKey = staffDateInput.value || toLocalISODate(new Date());
+      const monthKey = staffMonthInput.value || dateKey.slice(0, 7);
+      const dayRecord = state.attendance[dateKey] || {};
+
+      if (state.staff.length === 0) {
+        attList.innerHTML = `<p class="text-sm text-stone-400">No employees added yet. Add your first staff member below.</p>`;
+        payList.innerHTML = `<p class="text-sm text-stone-400">Add employees to track monthly payroll.</p>`;
+        return;
+      }
+
+      attList.innerHTML = state.staff.map((emp) => {
+        const status = dayRecord[emp.id] || "";
+        return `
+          <div class="p-3.5 rounded-2xl border border-stone-200 bg-stone-50/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <p class="font-bold text-stone-900">${escapeHtml(emp.name)}</p>
+              <p class="text-xs text-stone-500">${escapeHtml(emp.role || "Staff")} • ${formatINR(emp.dailyRate)}/day</p>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" data-att="present" data-emp="${escapeHtml(emp.id)}" class="px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border ${status === "present" ? "bg-emerald-600 text-white border-emerald-600" : "bg-white text-stone-700 border-stone-200 hover:bg-emerald-50"}">✅ Present</button>
+              <button type="button" data-att="half" data-emp="${escapeHtml(emp.id)}" class="px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border ${status === "half" ? "bg-amber-500 text-white border-amber-500" : "bg-white text-stone-700 border-stone-200 hover:bg-amber-50"}">🌗 Half</button>
+              <button type="button" data-att="absent" data-emp="${escapeHtml(emp.id)}" class="px-3 py-2.5 rounded-xl text-xs sm:text-sm font-bold border ${status === "absent" ? "bg-rose-600 text-white border-rose-600" : "bg-white text-stone-700 border-stone-200 hover:bg-rose-50"}">❌ Absent</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      attList.querySelectorAll("[data-att]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const empId = btn.dataset.emp;
+          const val = btn.dataset.att;
+          if (!state.attendance[dateKey]) state.attendance[dateKey] = {};
+          state.attendance[dateKey][empId] = state.attendance[dateKey][empId] === val ? "" : val;
+          saveState();
+          renderStaff();
+        });
+      });
+
+      let grandPayroll = 0;
+      payList.innerHTML = state.staff.map((emp) => {
+        let present = 0, half = 0, absent = 0;
+        Object.keys(state.attendance).forEach((d) => {
+          if (d.startsWith(monthKey)) {
+            const st = state.attendance[d][emp.id];
+            if (st === "present") present++;
+            else if (st === "half") half++;
+            else if (st === "absent") absent++;
+          }
+        });
+        const payableDays = present + half * 0.5;
+        const payAmt = Math.round(payableDays * Number(emp.dailyRate || 0));
+        grandPayroll += payAmt;
+        return `
+          <div class="p-3.5 rounded-2xl border border-stone-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+              <p class="font-bold text-stone-900">${escapeHtml(emp.name)} <span class="text-xs font-normal text-stone-500">(${escapeHtml(emp.role || "Staff")})</span></p>
+              <p class="text-xs text-stone-600 mt-0.5">✅ ${present} Present • 🌗 ${half} Half • ❌ ${absent} Absent • <strong>${payableDays} payable day(s)</strong></p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-base font-bold text-emerald-700">${formatINR(payAmt)}</span>
+              <button type="button" data-del-staff="${escapeHtml(emp.id)}" class="text-xs font-semibold text-red-500 hover:text-red-700 px-2 py-1">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join("") + `
+        <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-between">
+          <span class="font-bold text-rose-900">Total Monthly Payroll (${escapeHtml(monthKey)})</span>
+          <span class="text-lg font-bold text-rose-700">${formatINR(grandPayroll)}</span>
+        </div>
+      `;
+
+      payList.querySelectorAll("[data-del-staff]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.staff = state.staff.filter((x) => x.id !== btn.dataset.delStaff);
+          saveState();
+          renderStaff();
+          showToast("Removed staff member");
+        });
+      });
+    }
+
+    if (staffDateInput) staffDateInput.addEventListener("change", renderStaff);
+    if (staffMonthInput) staffMonthInput.addEventListener("change", renderStaff);
+
+    document.getElementById("staff-prev-day").addEventListener("click", () => {
+      const d = new Date((staffDateInput.value || toLocalISODate(new Date())) + "T00:00:00");
+      d.setDate(d.getDate() - 1);
+      staffDateInput.value = toLocalISODate(d);
+      renderStaff();
+    });
+    document.getElementById("staff-next-day").addEventListener("click", () => {
+      const d = new Date((staffDateInput.value || toLocalISODate(new Date())) + "T00:00:00");
+      d.setDate(d.getDate() + 1);
+      staffDateInput.value = toLocalISODate(d);
+      renderStaff();
+    });
+
+    document.getElementById("add-staff-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = document.getElementById("staff-name").value.trim();
+      const role = document.getElementById("staff-role").value.trim();
+      const dailyRate = Number(document.getElementById("staff-rate").value || 0);
+      if (!name) return;
+      state.staff.push({ id: "st-" + Date.now(), name, role, dailyRate });
+      saveState();
+      e.target.reset();
+      renderStaff();
+      showToast(`Added ${name}`);
+    });
+
+    document.getElementById("export-staff-csv-btn").addEventListener("click", () => {
+      const monthKey = staffMonthInput.value || toLocalISODate(new Date()).slice(0, 7);
+      const rows = [["Name", "Role", "Daily Rate", "Present Days", "Half Days", "Absent Days", "Payable Days", "Total Pay"]];
+      state.staff.forEach((emp) => {
+        let present = 0, half = 0, absent = 0;
+        Object.keys(state.attendance).forEach((d) => {
+          if (d.startsWith(monthKey)) {
+            const st = state.attendance[d][emp.id];
+            if (st === "present") present++;
+            else if (st === "half") half++;
+            else if (st === "absent") absent++;
+          }
+        });
+        const payableDays = present + half * 0.5;
+        rows.push([emp.name, emp.role || "", emp.dailyRate, present, half, absent, payableDays, Math.round(payableDays * emp.dailyRate)]);
+      });
+      const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `zuzu-payroll-${monthKey}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    function renderAll() {
+      renderStudioHeader();
+      renderKPIs();
+      renderCalendar();
+      renderOrdersList();
+      renderActiveOrder();
+      renderBillingTab();
+      renderStatements();
+      renderSchedule();
+    }
+
+    function buildInvoiceText(order) {
+      const t = getOrderTotals(order);
+      const evText = getOrderEvents(order).map((e, i) => `Day ${i + 1}: ${e.date} ${e.time || ""} ${e.location || ""}`).join("\n");
+      const payLines = (order.payments || []).map((p) => `- ${p.party}: ${formatINR(p.amount)} (${p.mode})`).join("\n");
+      return [
+        `*${state.studio.name}*`,
+        `Invoice #INV-${order.id}`,
+        `Client: ${order.name}`,
+        evText ? `Schedule:\n${evText}` : "",
+        `Package: ${order.packageName || "Makeup"} — ${formatINR(t.total)}`,
+        payLines ? `Payments:\n${payLines}` : "",
+        `Total Collected: ${formatINR(t.paid)}`,
+        `*Balance Due: ${formatINR(t.balance)}*`,
+        `Thank you for choosing ${state.studio.name}!`
+      ].filter(Boolean).join("\n");
+    }
+
+    function sendInvoiceToWhatsApp(order) {
+      if (!order) return;
+      const msg = encodeURIComponent(buildInvoiceText(order));
+      let digits = String(order.phone || "").replace(/\D/g, "");
+      if (digits.length === 10) digits = "91" + digits;
+      const waUrl = digits ? `https://wa.me/${digits}?text=${msg}` : `https://wa.me/?text=${msg}`;
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+    }
+
+    function buildEventICS(order, ev, idx) {
+      const dateCompact = (ev.date || addDaysISO(0)).replace(/-/g, "");
+      const uid = `zuzu-order-${order.id}-day-${idx + 1}@zuzubeautystudio.local`;
+      const stamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+      let dtStart = `DTSTART;VALUE=DATE:${dateCompact}`;
+      let dtEnd;
+      if (ev.time) {
+        const tCompact = ev.time.replace(":", "") + "00";
+        dtStart = `DTSTART:${dateCompact}T${tCompact}`;
+        const hr = String(Math.min(23, Number(ev.time.split(":")[0]) + 2)).padStart(2, "0");
+        const min = ev.time.split(":")[1] || "00";
+        dtEnd = `DTEND:${dateCompact}T${hr}${min}00`;
+      } else {
+        const nextDateObj = new Date((ev.date || addDaysISO(0)) + "T00:00:00");
+        nextDateObj.setDate(nextDateObj.getDate() + 1);
+        dtEnd = `DTEND;VALUE=DATE:${nextDateObj.toISOString().split("T")[0].replace(/-/g, "")}`;
+      }
+      return [
+        "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Zuzu Beauty Studio//EN", "BEGIN:VEVENT",
+        `UID:${uid}`, `DTSTAMP:${stamp}`, dtStart, dtEnd,
+        `SUMMARY:Zuzu Order - ${order.name} (Day ${idx + 1})`,
+        ev.location ? `LOCATION:${ev.location}` : "",
+        `DESCRIPTION:${order.packageName || "Makeup Booking"} (${formatINR(order.packagePrice || 0)})`,
+        "TRANSP:OPAQUE", "STATUS:CONFIRMED", "END:VEVENT", "END:VCALENDAR"
+      ].filter(Boolean).join("\r\n");
+    }
+
+    async function caldavRequest(method, targetUrl, body, extraHeaders) {
+      const headers = { ...(extraHeaders || {}) };
+      if (state.radicale.username) {
+        headers["Authorization"] = "Basic " + btoa(`${state.radicale.username}:${state.radicale.password || ""}`);
+      }
+      try {
+        const proxyRes = await fetch("/api/radicale-proxy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ method, url: targetUrl, headers, body: body || "" })
+        });
+        if (proxyRes.status !== 404) {
+          const data = await proxyRes.json();
+          return { ok: data.status >= 200 && data.status < 300, status: data.status, text: data.body || "" };
+        }
+      } catch (e) {}
+      const res = await fetch(targetUrl, { method, headers, body });
+      return { ok: res.ok, status: res.status, text: await res.text() };
+    }
+
+    async function pushOrderToRadicale(order) {
+      const evs = getOrderEvents(order).filter((e) => e.date);
+      if (evs.length === 0) { showToast("Set at least one Event Date to block it."); return; }
+      order.blocked = true;
+      saveState();
+      renderAll();
+
+      const baseUrl = normalizeRadicaleUrl(state.radicale.url);
+      if (!baseUrl) { showToast("Date(s) blocked locally. Add Radicale URL in Sync tab."); return; }
+      try {
+        for (let i = 0; i < evs.length; i++) {
+          const targetUrl = baseUrl.replace(/\/+$/, "") + `/zuzu-order-${order.id}-day-${i + 1}.ics`;
+          const res = await caldavRequest("PUT", targetUrl, buildEventICS(order, evs[i], i), { "Content-Type": "text/calendar; charset=utf-8" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        }
+        order.syncedToRadicale = true;
+        saveState();
+        renderAll();
+        showToast(`Blocked ${evs.length} event day(s) in Radicale!`);
+      } catch (err) {
+        showToast(`Saved locally. Radicale unreachable (${err.message}).`);
+      }
+    }
+
+    async function deleteOrderFromRadicale(order) {
+      const baseUrl = normalizeRadicaleUrl(state.radicale.url);
+      if (!baseUrl || !order.syncedToRadicale) return;
+      const evs = getOrderEvents(order);
+      for (let i = 0; i < Math.max(1, evs.length); i++) {
+        const targetUrl = baseUrl.replace(/\/+$/, "") + `/zuzu-order-${order.id}-day-${i + 1}.ics`;
+        try { await caldavRequest("DELETE", targetUrl, "", {}); } catch (e) {}
+      }
+    }
+
+    function normalizeRadicaleUrl(raw) {
+      let u = (raw || "").trim().replace("/.web/", "/").replace(/\/+$/, "");
+      return u;
+    }
+
+    async function twoWaySyncRadicale() {
+      const statusEl = document.getElementById("radicale-status");
+      const baseUrl = normalizeRadicaleUrl(state.radicale.url);
+      if (!baseUrl) {
+        statusEl.textContent = "Enter your Radicale Calendar URL first.";
+        showToast("Enter your Radicale Calendar URL in Radicale Sync tab.");
+        return;
+      }
+      statusEl.textContent = "Running 2-way sync with Radicale...";
+
+      const reportBody = `<?xml version="1.0" encoding="utf-8" ?>
+<C:calendar-query xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
+  <D:prop><D:getetag /><C:calendar-data /></D:prop>
+  <C:filter><C:comp-filter name="VCALENDAR"><C:comp-filter name="VEVENT" /></C:comp-filter></C:filter>
+</C:calendar-query>`;
+
+      try {
+        const res = await caldavRequest("REPORT", baseUrl + "/", reportBody, { "Depth": "1", "Content-Type": "application/xml; charset=utf-8" });
+        if (!res.ok) {
+          const detail = (res.text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+          throw new Error(detail ? `HTTP ${res.status}: ${detail}` : `HTTP ${res.status}`);
+        }
+
+        const remoteUIDs = new Set();
+        const externalEvents = [];
+        const matches = res.text.match(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g) || [];
+        matches.forEach((block) => {
+          const uidMatch = block.match(/UID:(.*)/);
+          const sumMatch = block.match(/SUMMARY[^:]*:(.*)/);
+          const dtMatch = block.match(/DTSTART[^:]*:(\d{8})/);
+          const uid = uidMatch ? uidMatch[1].trim() : "";
+          if (uid) remoteUIDs.add(uid);
+          if (dtMatch && !uid.startsWith("zuzu-order-")) {
+            const raw = dtMatch[1];
+            externalEvents.push({ summary: sumMatch ? sumMatch[1].trim() : "Radicale Event", date: `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}` });
+          }
+        });
+
+        let unblockedCount = 0;
+        state.orders.forEach((o) => {
+          const evs = getOrderEvents(o);
+          const anyStillRemote = evs.some((_, idx) =>
+            remoteUIDs.has(`zuzu-order-${o.id}-day-${idx + 1}@zuzubeautystudio.local`) ||
+            remoteUIDs.has(`zuzu-order-${o.id}@zuzubeautystudio.local`)
+          );
+          if (o.syncedToRadicale && !anyStillRemote) { o.blocked = false; o.syncedToRadicale = false; unblockedCount++; }
+        });
+
+        let pushedCount = 0;
+        for (const o of state.orders) {
+          if (o.blocked && !o.syncedToRadicale) {
+            const evs = getOrderEvents(o).filter((e) => e.date);
+            if (evs.length > 0) {
+              let okAll = true;
+              for (let i = 0; i < evs.length; i++) {
+                const targetUrl = baseUrl.replace(/\/+$/, "") + `/zuzu-order-${o.id}-day-${i + 1}.ics`;
+                const putRes = await caldavRequest("PUT", targetUrl, buildEventICS(o, evs[i], i), { "Content-Type": "text/calendar; charset=utf-8" });
+                if (!putRes.ok) okAll = false;
+              }
+              if (okAll) { o.syncedToRadicale = true; pushedCount++; }
+            }
+          }
+        }
+
+        state.radicaleEvents = externalEvents;
+        saveState();
+        renderAll();
+        statusEl.textContent = `2-Way Sync complete: ${externalEvents.length} external event(s) pulled, ${pushedCount} pushed, ${unblockedCount} unblocked.`;
+        showToast("2-Way Radicale sync complete!");
+      } catch (err) {
+        statusEl.textContent = `Could not reach Radicale (${err.message}).`;
+        showToast(`Sync failed: ${err.message}`);
+      }
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      ["calendar", "new-order", "orders", "billing", "statements", "staff", "schedule"].forEach((t) => {
+        document.getElementById(`view-${t}`).classList.toggle("hidden", tab !== t);
+        document.getElementById(`tab-${t}`).className =
+          tab === t
+            ? "px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors bg-rose-500 text-white text-center"
+            : "px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition-colors text-stone-600 hover:bg-rose-50 text-center";
+      });
+    }
+
+    document.getElementById("tab-calendar").addEventListener("click", () => switchTab("calendar"));
+    document.getElementById("tab-new-order").addEventListener("click", () => switchTab("new-order"));
+    document.getElementById("tab-orders").addEventListener("click", () => switchTab("orders"));
+    document.getElementById("tab-billing").addEventListener("click", () => switchTab("billing"));
+    document.getElementById("tab-statements").addEventListener("click", () => switchTab("statements"));
+        document.getElementById("home-sync-2way-btn").addEventListener("click", () => {
+      const btn = document.getElementById("sync-radicale-btn");
+      if (!state.radicale || !state.radicale.url) {
+        switchTab("schedule");
+        showToast("Enter your Radicale URL first to sync");
+        return;
+      }
+      if (btn) btn.click();
+    });
+
+    document.getElementById("tab-staff").addEventListener("click", () => switchTab("staff"));
+    document.getElementById("tab-schedule").addEventListener("click", () => switchTab("schedule"));
+    document.getElementById("goto-billing-btn").addEventListener("click", () => switchTab("billing"));
+
+    document.getElementById("cal-prev-btn").addEventListener("click", () => {
+      calMonth--;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      renderCalendar();
+    });
+    document.getElementById("cal-next-btn").addEventListener("click", () => {
+      calMonth++;
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      renderCalendar();
+    });
+    document.getElementById("cal-today-btn").addEventListener("click", () => {
+      const now = new Date();
+      calYear = now.getFullYear();
+      calMonth = now.getMonth();
+      renderCalendar();
+    });
+
+    document.getElementById("new-order-photo-input").addEventListener("change", (e) => {
+      compressPhotoFile(e.target.files[0], (dataUrl) => {
+        pendingNewOrderPhoto = dataUrl;
+        document.getElementById("new-order-photo-preview").innerHTML = `<img src="${dataUrl}" class="w-full h-full object-cover" />`;
+      });
+    });
+
+    document.getElementById("active-order-photo-input").addEventListener("change", (e) => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      compressPhotoFile(e.target.files[0], (dataUrl) => {
+        order.photo = dataUrl;
+        saveState();
+        renderAll();
+        showToast("Updated client photo");
+      });
+    });
+
+    document.getElementById("st-logo-input").addEventListener("change", (e) => {
+      compressPhotoFile(e.target.files[0], (dataUrl) => {
+        pendingStudioLogo = dataUrl;
+        document.getElementById("st-logo-preview").src = dataUrl;
+      });
+    });
+
+    document.getElementById("toggle-field-editor-btn").addEventListener("click", () => {
+      document.getElementById("field-editor-panel").classList.toggle("hidden");
+    });
+
+    document.getElementById("add-custom-field-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const label = document.getElementById("cf-label").value.trim();
+      const type = document.getElementById("cf-type").value;
+      const rawOpts = document.getElementById("cf-options").value.trim();
+      if (!label) return;
+      const options = type === "select" ? rawOpts.split(",").map((s) => s.trim()).filter(Boolean) : [];
+      state.customFields.push({ id: "cf_" + Date.now(), label, type, options });
+      document.getElementById("cf-label").value = "";
+      document.getElementById("cf-options").value = "";
+      saveState();
+      renderAll();
+      showToast(`Added field "${label}"`);
+    });
+
+    document.getElementById("new-order-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("order-name").value.trim();
+      const phone = document.getElementById("order-phone").value.trim();
+      const notes = document.getElementById("order-notes").value.trim();
+      const packageName = document.getElementById("order-package").value;
+      const packagePrice = Number(document.getElementById("order-price").value || 0);
+      const packageNotes = document.getElementById("order-package-notes").value.trim();
+      const shouldBlock = document.getElementById("order-block-date").checked;
+      if (!name) return;
+
+      const events = Array.from(eventDaysContainer.querySelectorAll(".event-day-row"))
+        .map((row) => ({
+          date: row.querySelector(".ev-date").value,
+          time: row.querySelector(".ev-time").value,
+          location: row.querySelector(".ev-loc").value.trim()
+        }))
+        .filter((ev) => ev.date || ev.time || ev.location);
+
+      const hasDate = events.some((ev) => !!ev.date);
+      const extraPackages = getExtraPackagesFromForm();
+      const combinedPkgLabel = getOrderCombinedPackageName({ packageName, extraPackages });
+      const combinedPkgNotes = getOrderCombinedPackageNotes({ packageNotes, extraPackages });
+      const newOrder = {
+        id: Date.now(),
+        name, phone, photo: pendingNewOrderPhoto, notes, personalDetails: {},
+        date: events[0]?.date || "", events,
+        packageName: combinedPkgLabel,
+        basePackageName: packageName,
+        packageNotes: combinedPkgNotes || packageNotes,
+        packagePrice,
+        extraPackages,
+        payments: [], blocked: shouldBlock && hasDate, syncedToRadicale: false
+      };
+      state.orders.unshift(newOrder);
+      state.activeOrderId = newOrder.id;
+      pendingNewOrderPhoto = "";
+      document.getElementById("new-order-photo-preview").innerHTML = "👩🏻";
+      document.getElementById("order-name").value = "";
+      document.getElementById("order-phone").value = "";
+      document.getElementById("order-notes").value = "";
+      document.getElementById("order-price").value = "";
+      document.getElementById("order-package-notes").value = "";
+      extraPackagesContainer.innerHTML = "";
+      document.getElementById("date-conflict-hint").classList.add("hidden");
+      eventDaysContainer.innerHTML = "";
+      addEventDayRow();
+      saveState();
+      renderAll();
+      switchTab("orders");
+
+      if (shouldBlock && hasDate && state.radicale.url) await pushOrderToRadicale(newOrder);
+      else showToast(`Saved "${name}"`);
+    });
+
+    document.getElementById("active-order-notes").addEventListener("input", (e) => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      order.notes = e.target.value;
+      saveState();
+    });
+
+    document.getElementById("billing-order-select").addEventListener("change", (e) => {
+      state.activeOrderId = Number(e.target.value);
+      saveState();
+      renderAll();
+    });
+
+    document.getElementById("edit-package-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      order.packageName = document.getElementById("bill-pkg-name").value.trim() || "Custom Package";
+      order.packagePrice = Number(document.getElementById("bill-pkg-price").value || 0);
+      order.packageNotes = document.getElementById("bill-pkg-notes").value.trim();
+      saveState();
+      renderAll();
+      showToast("Updated package details");
+    });
+
+    document.getElementById("add-payment-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      const party = document.getElementById("pay-party").value.trim();
+      const amount = Number(document.getElementById("pay-amount").value || 0);
+      const mode = document.getElementById("pay-mode").value;
+      if (!party || amount <= 0) return;
+
+      if (!Array.isArray(order.payments)) order.payments = [];
+      order.payments.push({ id: Date.now(), party, amount, mode, date: addDaysISO(0) });
+      document.getElementById("pay-party").value = "";
+      document.getElementById("pay-amount").value = "";
+      saveState();
+      renderAll();
+      showToast(`Recorded ${formatINR(amount)} from ${party}`);
+    });
+
+    document.getElementById("whatsapp-billing-btn").addEventListener("click", () => {
+      sendInvoiceToWhatsApp(state.orders.find((o) => o.id === state.activeOrderId));
+    });
+    document.getElementById("whatsapp-invoice-btn").addEventListener("click", () => {
+      sendInvoiceToWhatsApp(state.orders.find((o) => o.id === state.activeOrderId));
+    });
+
+    document.getElementById("open-invoice-btn").addEventListener("click", () => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      const t = getOrderTotals(order);
+      const evs = getOrderEvents(order);
+
+      document.getElementById("inv-studio-name").textContent = state.studio.name;
+      document.getElementById("inv-studio-addr").textContent = state.studio.address;
+      document.getElementById("inv-studio-phone").textContent = state.studio.phone;
+      document.getElementById("inv-number").textContent = `INV-${order.id}`;
+      document.getElementById("inv-date").textContent = `Issued: ${addDaysISO(0)}`;
+      document.getElementById("inv-client").textContent = order.name;
+      document.getElementById("inv-client-phone").textContent = order.phone || "";
+
+      const invEvEl = document.getElementById("inv-event-date");
+      invEvEl.innerHTML = evs.length
+        ? evs.map((ev, i) => `<p>Day ${i + 1}: ${escapeHtml(ev.date || "TBD")} ${escapeHtml(ev.time || "")} ${ev.location ? "— " + escapeHtml(ev.location) : ""}</p>`).join("")
+        : "<p>TBD</p>";
+
+      document.getElementById("inv-pkg-name").textContent = order.packageName || "Makeup Package";
+      const breakdownLines = [];
+      if (order.basePackageName || (Array.isArray(order.extraPackages) && order.extraPackages.length)) {
+        breakdownLines.push(`${order.basePackageName || order.packageName || "Day 1 Package"}: ${formatINR(Number(order.packagePrice || 0))}`);
+        (order.extraPackages || []).forEach((ex, i) => {
+          breakdownLines.push(`${ex.label || `Day ${i + 2} Package`}: ${formatINR(Number(ex.price || 0))}${ex.notes ? ` (${ex.notes})` : ""}`);
+        });
+      }
+      const noteParts = [];
+      if (breakdownLines.length) noteParts.push(breakdownLines.join(" | "));
+      if (order.packageNotes) noteParts.push(order.packageNotes);
+      document.getElementById("inv-pkg-notes").textContent = noteParts.join(" — ");
+      document.getElementById("inv-pkg-price").textContent = formatINR(t.total);
+
+      const pList = document.getElementById("inv-payments-list");
+      pList.innerHTML = "";
+      if ((order.payments || []).length === 0) {
+        pList.innerHTML = '<li class="text-stone-400">No payments recorded yet.</li>';
+      } else {
+        order.payments.forEach((p) => {
+          const li = document.createElement("li");
+          li.className = "flex justify-between text-stone-700";
+          li.innerHTML = `<span>${escapeHtml(p.party)} (${escapeHtml(p.mode)}, ${escapeHtml(p.date || "")})</span><span class="font-medium">${formatINR(p.amount)}</span>`;
+          pList.appendChild(li);
+        });
+      }
+
+      document.getElementById("inv-total").textContent = formatINR(t.total);
+      document.getElementById("inv-paid").textContent = formatINR(t.paid);
+      document.getElementById("inv-balance").textContent = formatINR(t.balance);
+      document.getElementById("invoice-modal").classList.remove("hidden");
+    });
+
+    document.getElementById("close-invoice-btn").addEventListener("click", () => {
+      document.getElementById("invoice-modal").classList.add("hidden");
+    });
+    document.getElementById("print-invoice-btn").addEventListener("click", () => window.print());
+    document.getElementById("copy-invoice-btn").addEventListener("click", () => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      const text = buildInvoiceText(order);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast("Invoice summary copied!"));
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        showToast("Invoice summary copied!");
+      }
+    });
+
+    async function sha256Hex(str) {
+      if (window.crypto && window.crypto.subtle) {
+        const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+        return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+      }
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    let isUnlocked = !(state.auth && state.auth.enabled && state.auth.passHash);
+    function updateLockUI() {
+      const screen = document.getElementById("login-screen");
+      if (!screen) return;
+      if (state.auth && state.auth.enabled && state.auth.passHash && !isUnlocked) {
+        screen.classList.remove("hidden");
+      } else {
+        screen.classList.add("hidden");
+      }
+    }
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const u = document.getElementById("login-user").value.trim();
+      const p = document.getElementById("login-pass").value;
+      const errEl = document.getElementById("login-error");
+      const hash = await sha256Hex(p);
+      if (u === (state.auth.username || "zuzu") && hash === state.auth.passHash) {
+        isUnlocked = true;
+        errEl.classList.add("hidden");
+        document.getElementById("login-pass").value = "";
+        updateLockUI();
+        showToast("Unlocked!");
+      } else {
+        errEl.textContent = "Incorrect username or password";
+        errEl.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("lock-app-btn").addEventListener("click", () => {
+      if (!state.auth || !state.auth.enabled || !state.auth.passHash) {
+        showToast("Set a password in Studio / Logo first!");
+        document.getElementById("edit-studio-btn").click();
+        return;
+      }
+      isUnlocked = false;
+      updateLockUI();
+    });
+
+    updateLockUI();
+
+    document.getElementById("edit-studio-btn").addEventListener("click", () => {
+      document.getElementById("st-login-user").value = (state.auth && state.auth.username) || "zuzu";
+      document.getElementById("st-login-pass").value = "";
+      document.getElementById("st-login-enabled").checked = !!(state.auth && state.auth.enabled);
+      pendingStudioLogo = state.studio.logo || "";
+      document.getElementById("st-name").value = state.studio.name;
+      document.getElementById("st-addr").value = state.studio.address;
+      document.getElementById("st-phone").value = state.studio.phone;
+      document.getElementById("st-hours").value = state.studio.hours;
+      document.getElementById("studio-modal").classList.remove("hidden");
+    });
+    document.getElementById("close-studio-btn").addEventListener("click", () => {
+      document.getElementById("studio-modal").classList.add("hidden");
+    });
+    document.getElementById("studio-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      state.studio = {
+        name: document.getElementById("st-name").value.trim() || "Zuzu Beauty Studio",
+        address: document.getElementById("st-addr").value.trim(),
+        phone: document.getElementById("st-phone").value.trim(),
+        hours: document.getElementById("st-hours").value.trim(),
+        logo: pendingStudioLogo
+      };
+      const newLoginUser = document.getElementById("st-login-user").value.trim() || "zuzu";
+      const newLoginPass = document.getElementById("st-login-pass").value;
+      const loginEnabled = document.getElementById("st-login-enabled").checked;
+      if (!state.auth) state.auth = { enabled: false, username: "zuzu", passHash: "" };
+      state.auth.username = newLoginUser;
+      if (newLoginPass) state.auth.passHash = await sha256Hex(newLoginPass);
+      state.auth.enabled = loginEnabled && !!state.auth.passHash;
+      if (loginEnabled && !state.auth.passHash) showToast("Enter a password to enable login lock");
+      saveState();
+      renderAll();
+      document.getElementById("studio-modal").classList.add("hidden");
+      showToast("Updated studio profile, logo & login");
+    });
+
+    document.getElementById("block-radicale-btn").addEventListener("click", async () => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      if (order.blocked) {
+        order.blocked = false;
+        await deleteOrderFromRadicale(order);
+        order.syncedToRadicale = false;
+        saveState();
+        renderAll();
+        showToast("Unblocked date(s)");
+      } else {
+        await pushOrderToRadicale(order);
+      }
+    });
+
+    document.getElementById("download-ics-btn").addEventListener("click", () => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      const evs = getOrderEvents(order);
+      const ics = buildEventICS(order, evs[0] || { date: addDaysISO(0), time: "", location: "" }, 0);
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `zuzu-order-${order.id}.ics`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Downloaded .ics event");
+    });
+
+    document.getElementById("delete-order-btn").addEventListener("click", async () => {
+      const order = state.orders.find((o) => o.id === state.activeOrderId);
+      if (!order) return;
+      await deleteOrderFromRadicale(order);
+      state.orders = state.orders.filter((o) => o.id !== order.id);
+      state.activeOrderId = state.orders.length > 0 ? state.orders[0].id : null;
+      saveState();
+      renderAll();
+      showToast(`Deleted "${order.name}"`);
+    });
+
+    document.querySelectorAll(".sfilter-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        statementFilter = btn.dataset.sfilter;
+        document.querySelectorAll(".sfilter-btn").forEach((b) => {
+          b.className = b === btn ? "sfilter-btn px-3.5 py-2 rounded-xl text-sm font-semibold bg-stone-900 text-white" : "sfilter-btn px-3.5 py-2 rounded-xl text-sm font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200";
+        });
+        renderStatements();
+      });
+    });
+
+    document.getElementById("statement-search").addEventListener("input", (e) => { statementSearch = e.target.value; renderStatements(); });
+
+    document.getElementById("export-csv-btn").addEventListener("click", () => {
+      const rows = [["Date", "Booking", "Phone", "Package", "Total", "Collected", "Balance", "Party Breakdown"]];
+      state.orders.forEach((o) => {
+        const t = getOrderTotals(o);
+        const dateLabel = getOrderEvents(o).map((e) => e.date).filter(Boolean).join(" | ");
+        const parties = (o.payments || []).map((p) => `${p.party}: ${p.amount} (${p.mode})`).join(" | ");
+        rows.push([dateLabel, o.name, o.phone || "", o.packageName || "", t.total, t.paid, t.balance, parties]);
+      });
+      const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `zuzu-statement-${addDaysISO(0)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("CSV statement downloaded");
+    });
+
+    document.getElementById("radicale-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      state.radicale = {
+        url: document.getElementById("cal-url").value.trim(),
+        username: document.getElementById("cal-user").value.trim(),
+        password: document.getElementById("cal-pass").value
+      };
+      saveState();
+      showToast("Saved Radicale settings");
+    });
+
+    document.getElementById("sync-radicale-btn").addEventListener("click", twoWaySyncRadicale);
+
+    // Strip Radicale password when exporting JSON backup so credentials never leak
+    document.getElementById("export-btn").addEventListener("click", () => {
+      const safeExport = structuredClone(state);
+      if (safeExport.radicale) safeExport.radicale.password = "";
+      if (safeExport.auth) safeExport.auth.passHash = "";
+      const blob = new Blob([JSON.stringify(safeExport, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `zuzu-beauty-studio-dataset-${addDaysISO(0)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Dataset exported (passwords excluded)");
+    });
+
+    document.getElementById("import-input").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (Array.isArray(parsed.orders)) {
+            state = { ...structuredClone(defaultState), ...parsed };
+            saveState();
+            renderAll();
+            showToast("Dataset imported!");
+          } else { showToast("Invalid dataset file"); }
+        } catch (err) { showToast("Could not read dataset file"); }
+      };
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    renderAll();
+    loadServerDataset();
+  </script>
+</body>
+</html>
